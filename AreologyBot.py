@@ -32,7 +32,7 @@ Implement Burrow Micro
 Implement Queen Inject
 Implement No conga line all attack
 
-Need to fix Evolution Chamber upgrade logic (sometimes 2nd evo doesn't work)
+Need to fix Evolution Chamber upgrade logic (sometimes 2nd evo doesn't upgrade)
 """
 class AreologyBot(sc2.BotAI):
     def __init__(self):
@@ -193,7 +193,7 @@ class AreologyBot(sc2.BotAI):
                 if self.can_afford(ROACHWARREN):
                     await self.build(ROACHWARREN, near = self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5))
 
-        # Evolution Chamber(s) Start Conditions
+        # Evolution Chamber (x2) Start Conditions
         # At least 50 drones, roach warren exists, and at least 3 townhalls
         if self.units(DRONE).exists and self.actualDroneCount >= 50 and self.townhalls.amount >= 3 and self.units(ROACHWARREN).exists:
             if self.units(EVOLUTIONCHAMBER).amount + self.already_pending(EVOLUTIONCHAMBER) < 2:
@@ -201,6 +201,8 @@ class AreologyBot(sc2.BotAI):
                 self.allowArmyProduction.append(False)
                 if self.minerals > 150:
                     await self.build(EVOLUTIONCHAMBER, near = self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5))
+                    await self.build(EVOLUTIONCHAMBER, near = self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5))
+
 
         # Start Lair no sooner than 5:30
         if self.units(HATCHERY).ready.idle.exists and self.minutesElapsed() >= 5.5 and self.actualDroneCount >= 50 and self.units(SPAWNINGPOOL).ready and self.townhalls.amount >= 3:
@@ -378,13 +380,14 @@ class AreologyBot(sc2.BotAI):
              MACRO
         QUEEN PRODUCTION
         """""""""""""""
-        if self.townhalls.ready.amount >= 5:   self.queenlimit = 7
-        elif self.townhalls.ready.amount >= 3: self.queenLimit = 5
-        else:                                  self.queenLimit = 3
+        if self.townhalls.ready.amount >= 5 and self.units(SPAWNINGPOOL).ready:      self.queenlimit = 7
+        elif self.townhalls.ready.amount >= 3 and self.units(SPAWNINGPOOL).ready:    self.queenLimit = 5
+        elif self.townhalls.ready.amount <=2 and self.units(SPAWNINGPOOL).ready:     self.queenLimit = 3
+        else:                                                                        self.queenLimit = 0
 
         # Early Game Queen Production Conditions
         # Spawning Pool exists and fewer than 2 or fewer townhalls are ready
-        if all(self.allowQueenProduction) and self.townhalls.ready.amount <= 2 and self.units(SPAWNINGPOOL).ready and self.supply_left >= 2 and self.actualQueenCount < self.queenLimit:
+        if all(self.allowQueenProduction) and self.supply_left >= 2 and self.actualQueenCount < self.queenLimit:
             for hatch in self.units(HATCHERY).ready.noqueue:
                 self.allowDroneProduction.append(False)
                 self.allowArmyProduction.append(False)
@@ -444,7 +447,7 @@ def main():
     COMPUTER_RACE = [Race.Terran, Race.Protoss, Race.Zerg, Race.Random]
     COMPUTER_DIFFICULTY = [Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.VeryHard, Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane]
 
-    sc2.run_game(maps.get("BlueShiftLE"), [
+    sc2.run_game(maps.get("CyberForestLE"), [
         Bot(Race.Zerg, AreologyBot()),
         Computer(COMPUTER_RACE[3], COMPUTER_DIFFICULTY[3])
     ], realtime = False)
