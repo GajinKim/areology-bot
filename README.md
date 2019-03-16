@@ -1,2 +1,3 @@
 # AreologyBot
-StarCraft 2 AI programmed in Python
+
+StarCraft 2 Zerg AI programmed in Python
