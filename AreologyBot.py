@@ -19,9 +19,6 @@ from sc2.player import Bot, Computer, Human
 # note: bar.ready (is already finished)
 
 """ ### To do-List [Ctrl + f "###" to see problematic places]
-
-### Need to order this list into most important to least
-
 Implement Scouting
 Implement Early game defense
 Implement Immediate gas saturation
