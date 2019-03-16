@@ -1,4 +1,4 @@
-AreologyBot (Zerg)
+Areology (Zerg) Bot
 
 StarCraft 2 AI coded in Python 3 using the python-sc2 framework
 
