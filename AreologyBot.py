@@ -32,17 +32,17 @@ Implement Burrow Micro
 Implement Queen Inject
 Implement No conga line all attack
 
+Learn about hasattr(object, key)
+
 Need to fix Evolution Chamber upgrade logic (sometimes 2nd evo doesn't upgrade)
 """
 class AreologyBot(sc2.BotAI):
     def __init__(self):
-        # PRODUCTION BOOLEANS
         self.allowArmyProduction = []
         self.allowDroneProduction = []
         self.allowQueenProduction = []
 
-        ### Need to implement later
-        self.defenseTriggerRange = 30
+        self.queenAssignedHatcheries = {}
 
         # major events
         self.lairStarted = False
@@ -70,58 +70,60 @@ class AreologyBot(sc2.BotAI):
         """
         Variable Initializations is reinitialized each iteration
         """
-        # Actual Drone Count (existing + in production + in gas)
-        self.actualDroneCount = self.units(DRONE).amount + self.already_pending(DRONE) + self.units(EXTRACTOR).ready.filter(lambda x:x.vespene_contents > 0).amount
-
         # Actual Unit Count (existing + in production)
-        self.actualOverlordCount = self.units(OVERLORD).amount + self.already_pending(OVERLORD)
-        self.actualQueenCount = self.units(QUEEN).amount + self.already_pending(QUEEN)
-        self.actualLingCount = self.units(ZERGLING).amount + self.already_pending(ZERGLING)
-        self.actualRoachCount = self.units(ROACH).amount + self.already_pending(ROACH)
-        self.actualHydraCount = self.units(HYDRALISK).amount + self.already_pending(HYDRALISK)
+        self.actualOverlordCount =  self.units(OVERLORD).amount + self.already_pending(OVERLORD)
+        self.actualQueenCount =     self.units(QUEEN).amount + self.already_pending(QUEEN)
+        self.actualZerglingCount =  self.units(ZERGLING).amount + self.already_pending(ZERGLING)
+        self.actualRoachCount =     self.units(ROACH).amount + self.already_pending(ROACH)
+        self.actualHydraliskCount = self.units(HYDRALISK).amount + self.already_pending(HYDRALISK)
         self.actualCorruptorCount = self.units(CORRUPTOR).amount + self.already_pending(CORRUPTOR)
         self.actualBroodlordCount = self.units(BROODLORD).amount + self.units(BROODLORDCOCOON).amount
 
-        # Actual Army Count (All units except Drones, Overlords, and Queens)
-        self.actualArmyCount = self.actualLingCount + self.actualRoachCount + self.actualHydraCount + self.actualCorruptorCount + self.actualBroodlordCount
+        # Worker Supply (existing + in production + in gas)
+        self.actualDroneSupply = self.units(DRONE).amount + self.already_pending(DRONE) + self.units(EXTRACTOR).ready.filter(lambda x:x.vespene_contents > 0).amount
+        # Army Supply (All units except Drones, Overlords)
+        self.actualArmySupply = self.actualQueenCount * 2 + self.actualZerglingCount * 0.5 + self.actualRoachCount * 2 + self.actualHydraliskCount * 2 + self.actualCorruptorCount * 2 + self.actualBroodlordCount * 4
+
 
         ### Need to implement gas prioritization
         await self.distribute_workers()
 
-        """
-        BUILD ORDER (HATCH FIRST)
-        """
+        """""""""""""""
+             BUILD
+             ORDER
+        """""""""""""""
         # Start Drone Immediately
         # Note: also accounts for sub 13 supply, in case of going under
-        if self.actualDroneCount < 13 and self.can_afford(DRONE) and self.supply_left >= 1 and self.units(LARVA).exists:
+        if self.actualDroneSupply < 13 and self.can_afford(DRONE) and self.supply_left >= 1 and self.units(LARVA).exists:
             await self.do(self.units(LARVA).random.train(DRONE))
 
         # Start Second Overlord on 13
-        if self.actualDroneCount == 13 and not self.already_pending(OVERLORD) and self.supply_used < 200 and self.units(LARVA).exists:
+        if self.actualDroneSupply == 13 and not self.already_pending(OVERLORD) and self.supply_used < 200 and self.units(LARVA).exists:
             self.allowDroneProduction.append(False)
             if self.can_afford(OVERLORD):
                 await self.do(self.units(LARVA).random.train(OVERLORD))
 
         # Start Spawning Pool on 17
         # Note: Second Hatchery and Extractor must have already been started
-        if self.actualDroneCount == 17 and self.units(DRONE).exists and self.units(EXTRACTOR).amount >= 1 and self.townhalls.amount >= 2:
+        if self.actualDroneSupply == 17 and self.units(DRONE).exists and self.units(EXTRACTOR).amount >= 1 and self.townhalls.amount >= 2:
             if self.units(SPAWNINGPOOL).amount + self.already_pending(SPAWNINGPOOL) < 1:
                 self.allowDroneProduction.append(False)
                 self.allowArmyProduction.append(False)
                 if self.can_afford(SPAWNINGPOOL):
                     await self.build(SPAWNINGPOOL, near = self.townhalls.first.position.towards(self.game_info.map_center, 5))
 
+        # Start Zerglings once Spawning Pool is finished
+        if all(self.allowArmyProduction) and self.units(SPAWNINGPOOL).ready and self.actualZerglingCount < 1 and self.units(LARVA).exists and self.supply_left >= 2:
+            self.allowDroneProduction.append(False)
+            if self.can_afford(ZERGLING):
+                await self.do(self.units(LARVA).random.train(ZERGLING))
+
         # Start Third Overlord on 20
-        if self.actualDroneCount == 20 and not self.already_pending(OVERLORD) and self.supply_used < 200 and self.units(LARVA).exists:
+        if self.actualDroneSupply == 20 and not self.already_pending(OVERLORD) and self.supply_used < 200 and self.units(LARVA).exists:
             self.allowDroneProduction.append(False)
             if self.can_afford(OVERLORD):
                 await self.do(self.units(LARVA).random.train(OVERLORD))
 
-            # Start Zerglings once Spawning Pool is finished
-            if all(self.allowArmyProduction) and self.units(SPAWNINGPOOL).ready and self.actualLingCount < 2 and self.units(LARVA).exists and self.supply_left >= 2:
-                self.allowDroneProduction.append(False)
-                if self.can_afford(ZERGLING):
-                    await self.do(self.units(LARVA).random.train(ZERGLING))
         """""""""""""""
              MACRO
            OVERLORDS
@@ -146,9 +148,9 @@ class AreologyBot(sc2.BotAI):
            EXPANDING
         """""""""""""""
         if self.minutesElapsed() >= 6 and self.supply_used >= 140 and self.townhalls.ready.amount >= 3:     self.townhallsLimit = 8
-        elif self.minutesElapsed() >= 5 and self.actualDroneCount >= 35 and self.townhalls.amount == 3:     self.townhallsLimit = 4
-        elif self.actualDroneCount >= 29 and self.actualQueenCount >= 2 and self.townhalls.amount == 2:     self.townhallsLimit = 3
-        elif self.actualDroneCount >= 17:                                                                   self.townhallsLimit = 2
+        elif self.minutesElapsed() >= 5 and self.actualDroneSupply >= 35 and self.townhalls.amount == 3:     self.townhallsLimit = 4
+        elif self.actualDroneSupply >= 29 and self.actualQueenCount >= 2 and self.townhalls.amount == 2:     self.townhallsLimit = 3
+        elif self.actualDroneSupply >= 17:                                                                   self.townhallsLimit = 2
         else:                                                                                               self.townhallsLimit = 1
 
         if self.townhalls.amount < self.townhallsLimit and self.units(DRONE).exists:
@@ -164,9 +166,9 @@ class AreologyBot(sc2.BotAI):
              MACRO
            EXTRACTOR
         """""""""""""""
-        if self.townhalls.amount >= 4 and self.actualDroneCount >= 66:            self.extractorLimit = self.townhalls.ready.amount * 2
+        if self.townhalls.amount >= 4 and self.actualDroneSupply >= 66:            self.extractorLimit = self.townhalls.ready.amount * 2
         elif self.townhalls.amount >= 2 and self.units(ROACHWARREN).exists:       self.extractorLimit = 3
-        elif self.townhalls.amount >= 2 and self.actualDroneCount >= 17:          self.extractorLimit = 1
+        elif self.townhalls.amount >= 2 and self.actualDroneSupply >= 17:          self.extractorLimit = 1
         else:                                                                     self.extractorLimit = 0
 
         for townhall in self.townhalls.ready:
@@ -186,7 +188,7 @@ class AreologyBot(sc2.BotAI):
         """""""""""""""
         # Roach Warren at 44 Drones
         # At least 44 drones and Spawning Pool is finished
-        if self.units(DRONE).exists and self.actualDroneCount >= 44 and self.units(SPAWNINGPOOL).ready and self.townhalls.exists:
+        if self.units(DRONE).exists and self.actualDroneSupply >= 44 and self.units(SPAWNINGPOOL).ready and self.townhalls.exists:
             if self.units(ROACHWARREN).amount + self.already_pending(ROACHWARREN) < 1:
                 self.allowArmyProduction.append(False)
                 self.allowDroneProduction.append(False)
@@ -195,7 +197,7 @@ class AreologyBot(sc2.BotAI):
 
         # Evolution Chamber (x2) Start Conditions
         # At least 50 drones, roach warren exists, and at least 3 townhalls
-        if self.units(DRONE).exists and self.actualDroneCount >= 50 and self.townhalls.amount >= 3 and self.units(ROACHWARREN).exists:
+        if self.units(DRONE).exists and self.actualDroneSupply >= 50 and self.townhalls.amount >= 3 and self.units(ROACHWARREN).exists:
             if self.units(EVOLUTIONCHAMBER).amount + self.already_pending(EVOLUTIONCHAMBER) < 2:
                 self.allowDroneProduction.append(False)
                 self.allowArmyProduction.append(False)
@@ -205,7 +207,7 @@ class AreologyBot(sc2.BotAI):
 
 
         # Start Lair no sooner than 5:30
-        if self.units(HATCHERY).ready.idle.exists and self.minutesElapsed() >= 5.5 and self.actualDroneCount >= 50 and self.units(SPAWNINGPOOL).ready and self.townhalls.amount >= 3:
+        if self.units(HATCHERY).ready.idle.exists and self.minutesElapsed() >= 5.5 and self.actualDroneSupply >= 50 and self.units(SPAWNINGPOOL).ready and self.townhalls.amount >= 3:
             if not self.lairStarted:
                 self.allowArmyProduction.append(False)
                 self.allowDroneProduction.append(False)
@@ -224,7 +226,7 @@ class AreologyBot(sc2.BotAI):
 
         # Infestation Pit Start Conditions
         # Lair is finished, at least 50 drones, at least 4 townhalls, and at least 6:00
-        if self.units(DRONE).exists and self.units(LAIR).ready and self.minutesElapsed() > 6 and self.actualDroneCount >= 55 and self.townhalls.amount >= 4:
+        if self.units(DRONE).exists and self.units(LAIR).ready and self.minutesElapsed() > 6 and self.actualDroneSupply >= 55 and self.townhalls.amount >= 4:
             if self.units(INFESTATIONPIT).amount + self.already_pending(INFESTATIONPIT) < 1 and self.units(HYDRALISK).ready:
                 self.allowDroneProduction.append(False)
                 self.allowArmyProduction.append(False)
@@ -325,8 +327,8 @@ class AreologyBot(sc2.BotAI):
                         await self.do(hatch(AbilityId.RESEARCH_BURROW))
                         self.burrowUpgradeStarted = True
         """""""""""""""
-            TEMPORARY
-        ATTACK ALGORITHM
+           TEMPORARY
+         ATK ALGORITHM
         """""""""""""""
         # Defend if less than 170 supply
         if self.supply_used < 170:
@@ -372,9 +374,9 @@ class AreologyBot(sc2.BotAI):
         if self.townhalls.ready.amount >= 4: self.droneLimit = 90
         else:                                self.droneLimit = 66
 
-        if all(self.allowDroneProduction) and self.actualDroneCount < self.droneLimit and self.supply_left >= 1 and self.units(LARVA).exists and self.actualDroneCount < 22 * self.townhalls.ready.amount:
+        if all(self.allowDroneProduction) and self.actualDroneSupply < self.droneLimit and self.supply_left >= 1 and self.units(LARVA).exists and self.actualDroneSupply < 22 * self.townhalls.ready.amount:
             if self.can_afford(DRONE):
-                if self.actualDroneCount < 3 * (self.actualArmyCount + self.actualQueenCount) or not self.units(ROACHWARREN).ready:
+                if self.actualDroneSupply < 1.5 * self.actualArmySupply or not self.units(ROACHWARREN).ready:
                     await self.do(self.units(LARVA).random.train(DRONE))
         """""""""""""""
              MACRO
@@ -398,32 +400,37 @@ class AreologyBot(sc2.BotAI):
              MACRO
            ARMY UNIT
         """""""""""""""
+        self.enableZerglingProduction = False
+        self.enableRoachProduction = False
+        self.enableHydraliskProduction = False
+
+        if self.units(SPAWNINGPOOL).ready:
+            if not self.units(ROACHWARREN).ready and self.actualZerglingCount < 8:                          self.enableZerglingProduction = True
+
+        if self.units(ROACHWARREN).ready:
+            if not self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready:                    self.enableRoachProduction = True
+            elif self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready \
+            and self.actualRoachCount < 1.5 * self.actualHydraliskCount and self.actualArmySupply < 110:     self.enableRoachProduction = True
+            elif self.units(HYDRALISKDEN).ready and self.units(GREATERSPIRE).ready \
+            and self.actualRoachCount < 0.5 * self.actualHydraliskCount and self.actualArmySupply < 80:      self.enableRoachProduction = True
+
+        if self.units(HYDRALISKDEN).ready:
+            if not self.units(GREATERSPIRE).ready:                                                           self.enableHydraliskProduction = True
+            elif self.units(GREATERSPIRE).ready and self.actualArmySupply < 80:                              self.enableHydraliskProduction = True
+
         # Start Zerglings once Spawning Pool is finished
-        if all(self.allowArmyProduction) and self.units(SPAWNINGPOOL).ready and self.actualLingCount < 8 and self.units(LARVA).exists and not self.units(ROACHWARREN).ready and self.supply_left >= 1:
+        if all(self.allowArmyProduction) and self.enableZerglingProduction and self.units(LARVA).exists and self.supply_left >= 1:
             if self.can_afford(ZERGLING):
                 await self.do(self.units(LARVA).random.train(ZERGLING))
 
         # Start Roaches once Roach Warren is finished
-        if all(self.allowArmyProduction) and self.units(ROACHWARREN).ready and self.can_afford(ROACH) and self.units(LARVA).exists:
-            # Hydralisk Den and Greater spire are both not finished
-            if not self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready:
-                await self.do(self.units(LARVA).random.train(ROACH))
-            # Hydralisk Den is finished but Greater Spire is not
-            elif self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready:
-                if self.actualRoachCount < 1.5 * self.actualHydraCount:
-                    await self.do(self.units(LARVA).random.train(ROACH))
-            # Hydralisk Den and Greater Spire are both finished (Don't produce past 170 - Save room for Broodlords)
-            elif self.units(HYDRALISKDEN).ready and self.units(GREATERSPIRE).ready and self.supply_used < 170:
-                if self.actualRoachCount < 0.75 * self.actualHydraCount:
+        if all(self.allowArmyProduction) and self.enableRoachProduction and self.units(LARVA).exists and self.supply_left >= 2:
+                if self.can_afford(ROACH):
                     await self.do(self.units(LARVA).random.train(ROACH))
 
         # Start Hydralisks once Hydralisk Den is finished
-        if all(self.allowArmyProduction) and self.units(HYDRALISKDEN).ready and self.can_afford(HYDRALISK) and self.units(LARVA).exists:
-            # Greater Spire is not finished
-            if not self.units(GREATERSPIRE).ready:
-                await self.do(self.units(LARVA).random.train(HYDRALISK))
-            # Greater Spire is finished (Don't produce past 170 - Save room for Broodlords)
-            elif self.units(GREATERSPIRE).ready and self.supply_left < 170:
+        if all(self.allowArmyProduction) and self.enableHydraliskProduction and self.units(LARVA).exists:
+            if self.can_afford(HYDRALISK):
                     await self.do(self.units(LARVA).random.train(HYDRALISK))
 
         # Corrupter Production Conditions
