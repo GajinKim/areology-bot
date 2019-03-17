@@ -384,7 +384,7 @@ class AreologyBot(sc2.BotAI):
         """""""""""""""
         if self.townhalls.ready.amount >= 5 and self.units(SPAWNINGPOOL).ready:      self.queenlimit = 7
         elif self.townhalls.ready.amount >= 3 and self.units(SPAWNINGPOOL).ready:    self.queenLimit = 5
-        elif self.townhalls.ready.amount <=2 and self.units(SPAWNINGPOOL).ready:     self.queenLimit = 3
+        elif self.townhalls.ready.amount == 2 and self.units(SPAWNINGPOOL).ready:     self.queenLimit = 3
         else:                                                                        self.queenLimit = 0
 
         # Early Game Queen Production Conditions
