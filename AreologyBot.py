@@ -82,7 +82,7 @@ class AreologyBot(sc2.BotAI):
         # Worker Supply (existing + in production + in gas)
         self.actualDroneSupply = self.units(DRONE).amount + self.already_pending(DRONE) + self.units(EXTRACTOR).ready.filter(lambda x:x.vespene_contents > 0).amount
         # Army Supply (All units except Drones, Overlords)
-        self.actualArmySupply = self.actualQueenCount * 2 + self.actualZerglingCount * 0.5 + self.actualRoachCount * 2 + self.actualHydraliskCount * 2 + self.actualCorruptorCount * 2 + self.actualBroodlordCount * 4
+        self.actualArmySupply = 2 * self.actualQueenCount + 0.5 * self.actualZerglingCount + 2 * self.actualRoachCount + 2 * self.actualHydraliskCount + 2 * self.actualCorruptorCount + 4 * self.actualBroodlordCount
 
 
         ### Need to implement gas prioritization
@@ -147,11 +147,11 @@ class AreologyBot(sc2.BotAI):
              MACRO
            EXPANDING
         """""""""""""""
-        if self.minutesElapsed() >= 6 and self.supply_used >= 140 and self.townhalls.ready.amount >= 3:     self.townhallsLimit = 8
+        if self.minutesElapsed() >= 6 and self.supply_used >= 140 and self.townhalls.ready.amount >= 3:      self.townhallsLimit = 8
         elif self.minutesElapsed() >= 5 and self.actualDroneSupply >= 35 and self.townhalls.amount == 3:     self.townhallsLimit = 4
         elif self.actualDroneSupply >= 29 and self.actualQueenCount >= 2 and self.townhalls.amount == 2:     self.townhallsLimit = 3
         elif self.actualDroneSupply >= 17:                                                                   self.townhallsLimit = 2
-        else:                                                                                               self.townhallsLimit = 1
+        else:                                                                                                self.townhallsLimit = 1
 
         if self.townhalls.amount < self.townhallsLimit and self.units(DRONE).exists:
             if not self.already_pending(HATCHERY):
@@ -160,16 +160,16 @@ class AreologyBot(sc2.BotAI):
                 self.allowQueenProduction.append(False)
                 if self.can_afford(HATCHERY):
                     await self.expand_now()
-            elif self.already_pending(HATCHERY) == 1 and self.townhallsLimit == 8 and self.minerals > 750:
+            elif self.already_pending(HATCHERY) == 1 and self.townhallsLimit >= 5 and self.minerals > 750:
                 await self.expand_now()
         """""""""""""""
              MACRO
            EXTRACTOR
         """""""""""""""
         if self.townhalls.amount >= 4 and self.actualDroneSupply >= 66:            self.extractorLimit = self.townhalls.ready.amount * 2
-        elif self.townhalls.amount >= 2 and self.units(ROACHWARREN).exists:       self.extractorLimit = 3
+        elif self.townhalls.amount >= 2 and self.units(ROACHWARREN).exists:        self.extractorLimit = 3
         elif self.townhalls.amount >= 2 and self.actualDroneSupply >= 17:          self.extractorLimit = 1
-        else:                                                                     self.extractorLimit = 0
+        else:                                                                      self.extractorLimit = 0
 
         for townhall in self.townhalls.ready:
             considered_vespene = self.state.vespene_geyser.closer_than(10.0, townhall)
@@ -224,25 +224,24 @@ class AreologyBot(sc2.BotAI):
                 if self.can_afford(HYDRALISKDEN):
                     await self.build(HYDRALISKDEN, near = self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5))
 
-        # Infestation Pit Start Conditions
-        # Lair is finished, at least 50 drones, at least 4 townhalls, and at least 6:00
-        if self.units(DRONE).exists and self.units(LAIR).ready and self.minutesElapsed() > 6 and self.actualDroneSupply >= 55 and self.townhalls.amount >= 4:
+        # Infestation Pit: Lair is finished, at least 4 bases, and at least 7:00
+        if self.units(DRONE).exists and self.units(LAIR).ready and self.minutesElapsed() > 7 and self.actualDroneSupply >= 55 and self.townhalls.amount >= 4:
             if self.units(INFESTATIONPIT).amount + self.already_pending(INFESTATIONPIT) < 1 and self.units(HYDRALISK).ready:
                 self.allowDroneProduction.append(False)
                 self.allowArmyProduction.append(False)
                 if self.can_afford(INFESTATIONPIT):
                     await self.build(INFESTATIONPIT, near = self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5))
 
-        # Start Spire after reaching 150 supply off 4 mining bases
-        if self.units(DRONE).exists and (self.units(LAIR).ready or self.units(HIVE).ready) and self.minutesElapsed() > 7 and self.supply_used >= 180 and self.townhalls.amount >= 5:
+        # Start Spire: At least 160 supply off 4 townhalls, and at least 7:30
+        if self.units(DRONE).exists and (self.units(LAIR).ready or self.units(HIVE).ready) and self.minutesElapsed() > 7.5 and self.supply_used >= 160 and self.townhalls.amount >= 5:
             if self.units(SPIRE).amount + self.already_pending(SPIRE) < 1:
                 self.allowDroneProduction.append(False)
                 self.allowArmyProduction.append(False)
                 if self.can_afford(SPIRE):
                     await self.build(SPIRE, near = self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5))
 
-        # Start Hive no sooner than 8:00
-        if self.units(LAIR).ready.idle.exists and self.minutesElapsed() > 8 and self.supply_used >= 180 and self.units(INFESTATIONPIT).ready and self.units(SPIRE).exists and self.townhalls.amount >=5:
+        # Start Hive: No sooner than 8:30
+        if self.units(LAIR).ready.idle.exists and self.minutesElapsed() > 8.5 and self.supply_used >= 160 and self.units(INFESTATIONPIT).ready and self.units(SPIRE).exists and self.townhalls.amount >=5:
             if not self.hiveStarted:
                 self.allowArmyProduction.append(False)
                 self.allowDroneProduction.append(False)
@@ -371,7 +370,7 @@ class AreologyBot(sc2.BotAI):
              MACRO
             DRONING
         """""""""""""""
-        if self.townhalls.ready.amount >= 4: self.droneLimit = 90
+        if self.townhalls.ready.amount >= 4: self.droneLimit = 85
         else:                                self.droneLimit = 66
 
         if all(self.allowDroneProduction) and self.actualDroneSupply < self.droneLimit and self.supply_left >= 1 and self.units(LARVA).exists and self.actualDroneSupply < 22 * self.townhalls.ready.amount:
@@ -405,18 +404,18 @@ class AreologyBot(sc2.BotAI):
         self.enableHydraliskProduction = False
 
         if self.units(SPAWNINGPOOL).ready:
-            if not self.units(ROACHWARREN).ready and self.actualZerglingCount < 8:                          self.enableZerglingProduction = True
+            if not self.units(ROACHWARREN).ready and self.actualZerglingCount < 8:                           self.enableZerglingProduction = True
 
         if self.units(ROACHWARREN).ready:
             if not self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready:                    self.enableRoachProduction = True
             elif self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready \
-            and self.actualRoachCount < 1.5 * self.actualHydraliskCount and self.actualArmySupply < 110:     self.enableRoachProduction = True
+            and self.actualRoachCount < 1.5 * self.actualHydraliskCount and self.actualArmySupply < 115:     self.enableRoachProduction = True
             elif self.units(HYDRALISKDEN).ready and self.units(GREATERSPIRE).ready \
-            and self.actualRoachCount < 0.5 * self.actualHydraliskCount and self.actualArmySupply < 80:      self.enableRoachProduction = True
+            and self.actualRoachCount < 0.5 * self.actualHydraliskCount and self.actualArmySupply < 85:      self.enableRoachProduction = True
 
         if self.units(HYDRALISKDEN).ready:
             if not self.units(GREATERSPIRE).ready:                                                           self.enableHydraliskProduction = True
-            elif self.units(GREATERSPIRE).ready and self.actualArmySupply < 80:                              self.enableHydraliskProduction = True
+            elif self.units(GREATERSPIRE).ready and self.actualArmySupply < 85:                              self.enableHydraliskProduction = True
 
         # Start Zerglings once Spawning Pool is finished
         if all(self.allowArmyProduction) and self.enableZerglingProduction and self.units(LARVA).exists and self.supply_left >= 1:
