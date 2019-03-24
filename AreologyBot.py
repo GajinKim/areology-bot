@@ -472,7 +472,7 @@ class AreologyBot(sc2.BotAI):
 
 
         # Start Lair no sooner than 5:30
-        if self.units(HATCHERY).ready.idle.exists and self.minutesElapsed() >= 5.5 and self.actualDroneSupply > 50 and self.units(SPAWNINGPOOL).ready:
+        if self.units(HATCHERY).ready.idle and self.minutesElapsed() >= 5.5 and self.actualDroneSupply > 50 and self.units(SPAWNINGPOOL).ready:
             if not self.lairStarted:
                 self.enableArmyProduction.append(False)
                 self.enableDroneProduction.append(False)
@@ -569,9 +569,7 @@ class AreologyBot(sc2.BotAI):
              MACRO
         QUEEN PRODUCTION
         """""""""""""""
-        if self.townhalls.ready.amount >= 5 and self.units(SPAWNINGPOOL).ready:      self.queenlimit = 7
-        elif self.townhalls.ready.amount >= 3 and self.units(SPAWNINGPOOL).ready:    self.queenLimit = 5
-        elif self.townhalls.ready.amount == 2 and self.units(SPAWNINGPOOL).ready:     self.queenLimit = 3
+        if self.townhalls.ready.amount >= 5 and self.units(SPAWNINGPOOL).ready:      self.queenlimit = self.townhalls.ready.amount + 4
         else:                                                                        self.queenLimit = 0
 
         # Early Game Queen Production Conditions
@@ -594,12 +592,12 @@ class AreologyBot(sc2.BotAI):
         self.enableBroodlordProduction = False
 
         if self.units(SPAWNINGPOOL).ready:
-            if not self.units(ROACHWARREN).ready and self.actualZerglingCount < 8 and self.actualDroneSupply < 50:  self.enableZerglingProduction = True
+            if not self.units(ROACHWARREN).ready and self.actualZerglingCount < 2 and self.actualDroneSupply < 50:  self.enableZerglingProduction = True
 
         if self.units(ROACHWARREN).ready:
             if not self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready:                           self.enableRoachProduction = True
             elif self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready \
-            and self.actualRoachCount < 1.5 * self.actualHydraliskCount and self.actualArmySupply < 115:            self.enableRoachProduction = True
+            and self.actualRoachCount < 1 * self.actualHydraliskCount and self.actualArmySupply < 115:            self.enableRoachProduction = True
             elif self.units(HYDRALISKDEN).ready and self.units(GREATERSPIRE).ready \
             and self.actualRoachCount < 0.5 * self.actualHydraliskCount and self.actualArmySupply < 85:             self.enableRoachProduction = True
 
