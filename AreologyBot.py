@@ -569,10 +569,9 @@ class AreologyBot(sc2.BotAI):
              MACRO
         QUEEN PRODUCTION
         """""""""""""""
-        if self.townhalls.ready.amount >= 5 and self.units(SPAWNINGPOOL).ready:      self.queenlimit = 7
-        elif self.townhalls.ready.amount >= 3 and self.units(SPAWNINGPOOL).ready:    self.queenLimit = 5
+        if self.townhalls.ready.amount >= 3 and self.units(SPAWNINGPOOL).ready:       self.queenLimit = self.townhalls.ready.amount + 4
         elif self.townhalls.ready.amount == 2 and self.units(SPAWNINGPOOL).ready:     self.queenLimit = 3
-        else:                                                                        self.queenLimit = 0
+        else:                                                                         self.queenLimit = 0
 
         # Early Game Queen Production Conditions
         # Spawning Pool exists and fewer than 2 or fewer townhalls are ready
