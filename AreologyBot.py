@@ -23,7 +23,7 @@ Implement Scouting
 Implement Early game defense
 Implement Immediate gas saturation
 Implement Creep spread (and tumor placement)
-Implement Proper army manipulation (army distribution), don't make them just sit in main
+Implement Proper army manipulation (army distribution), don't just have them patrol
 Implement Anti cloak measues
 Implement Check all enemy bases
 Implement Proper extractor production (ERRORS)
@@ -31,12 +31,16 @@ Implement Overseer logic (builds way too many)
 Implement Burrow Micro
 Implement No conga line all attack
 
+Implement army pull back after traveling X distance away from bases, so they don't funnel into opponent's bases
+Implement queen pull back after X % creep spread, so they don't die spreading creep on opponent's side of the map
+
 Learn about hasattr(object, key)
 
 Need to fix Evolution Chamber upgrade logic (sometimes 2nd evo doesn't upgrade)
 """
 class AreologyBot(sc2.BotAI):
     def __init__(self):
+
         self.partneredQueens = {} # Used for Injecting
 
         # major events
@@ -71,7 +75,7 @@ class AreologyBot(sc2.BotAI):
         queensNoInjectPartner = self.units(QUEEN).filter(lambda q: q.tag not in self.partneredQueens.keys())
         basesNoInjectPartner = self.townhalls.filter(lambda h: h.tag not in self.partneredQueens.values() and h.build_progress > 0.8)
 
-        # Assigns a queen to nearest townhall w/o an inject partner
+        # Assigns a Queen to nearest townhall without a Queen partner
         for queen in queensNoInjectPartner:
             if basesNoInjectPartner.amount == 0:
                 break
@@ -189,7 +193,7 @@ class AreologyBot(sc2.BotAI):
         self.positionsWithoutCreep = [p for valid, p in zip(validPlacements, positions) if valid not in successResults]
         return self.positionsWithCreep, self.positionsWithoutCreep
 
-    async def doCreepSpread(self):
+    async def spreadCreep(self):
         # only use queens that are not assigned to do larva injects
         allTumors = self.units(CREEPTUMOR) | self.units(CREEPTUMORBURROWED) | self.units(CREEPTUMORQUEEN)
 
@@ -226,7 +230,6 @@ class AreologyBot(sc2.BotAI):
                             if not err:
                                 break
 
-
         unusedTumors = allTumors.filter(lambda x: x.tag not in self.usedCreepTumors)
         tumorsMadeTumorPositions = set()
         for tumor in unusedTumors:
@@ -258,7 +261,7 @@ class AreologyBot(sc2.BotAI):
         # Unit Count (existing and in production)
         self.actualOverlordCount =  self.units(OVERLORD).amount + self.already_pending(OVERLORD)
         self.actualQueenCount =     self.units(QUEEN).amount + self.already_pending(QUEEN)
-        self.actualZerglingCount =  self.units(ZERGLING).amount + self.already_pending(ZERGLING)
+        self.actualZerglingPairCount =  self.units(ZERGLING).amount + self.already_pending(ZERGLING)
         self.actualRoachCount =     self.units(ROACH).amount + self.already_pending(ROACH)
         self.actualHydraliskCount = self.units(HYDRALISK).amount + self.already_pending(HYDRALISK)
         self.actualCorruptorCount = self.units(CORRUPTOR).amount + self.already_pending(CORRUPTOR)
@@ -267,9 +270,9 @@ class AreologyBot(sc2.BotAI):
         # Worker Supply (existing + in production + in gas)
         self.actualDroneSupply = self.units(DRONE).amount + self.already_pending(DRONE) + self.units(EXTRACTOR).ready.filter(lambda x:x.vespene_contents > 0).amount
         # Army Supply (Food supply of all units except Drones and Overlords)
-        self.actualArmySupply = 2 * self.actualQueenCount + 0.5 * self.actualZerglingCount + 2 * self.actualRoachCount + 2 * self.actualHydraliskCount + 2 * self.actualCorruptorCount + 4 * self.actualBroodlordCount
+        self.actualArmySupply = 2 * self.actualQueenCount + 1 * self.actualZerglingPairCount + 2 * self.actualRoachCount + 2 * self.actualHydraliskCount + 2 * self.actualCorruptorCount + 4 * self.actualBroodlordCount
 
-        self.injectQueenLimit = 4
+        self.partneredQueenLimit = 4 # Maximum number of Partnered Queens
 
         ### Need to implement gas prioritization
         await self.distribute_workers()
@@ -300,14 +303,14 @@ class AreologyBot(sc2.BotAI):
 
         # Partners a Queen to a Townhall
         # @parameter - Maximum number of Queens that will be dedicated to injecting
-        self.partnerQueen(self.injectQueenLimit)
+        self.partnerQueen(self.partneredQueenLimit)
 
         # Start Injecting
         # Note: Also reassigns Queens in case an Injecting Queen or Townhall dies
         await self.doQueenInjects(iteration)
 
         # Start Zerglings once Spawning Pool is finished
-        if all(self.enableArmyProduction) and self.units(SPAWNINGPOOL).ready and self.actualZerglingCount < 2 and self.units(LARVA).exists and self.supply_left >= 1:
+        if all(self.enableArmyProduction) and self.units(SPAWNINGPOOL).ready and self.actualZerglingPairCount < 2 and self.units(LARVA).exists and self.supply_left >= 1:
             self.enableDroneProduction.append(False)
             if self.can_afford(ZERGLING):
                 await self.do(self.units(LARVA).random.train(ZERGLING))
@@ -315,16 +318,41 @@ class AreologyBot(sc2.BotAI):
         # Start Third Overlord on 20
         if self.actualDroneSupply == 20 and not self.already_pending(OVERLORD) and self.supply_used < 200 and self.units(LARVA).exists:
             self.enableDroneProduction.append(False)
+            self.enableQueenProduction.append(False)
             if self.can_afford(OVERLORD):
                 await self.do(self.units(LARVA).random.train(OVERLORD))
+        """""""""""""""
+            TOWNHALL
+            UPGRADES
+        """""""""""""""
+        # Start Lair
+        if self.units(HATCHERY).ready.idle.exists and self.townhalls.ready.amount >= 3 and self.actualDroneSupply > 50 and self.units(SPAWNINGPOOL).ready:
+            if not self.lairStarted:
+                self.enableArmyProduction.append(False)
+                self.enableDroneProduction.append(False)
+                self.enableQueenProduction.append(False)
+                if self.can_afford(LAIR):
+                    await self.do(self.units(HATCHERY).ready.idle.random(UPGRADETOLAIR_LAIR))
+                    await self.chat_send(str(int(self.minutesElapsed())) + "min " + str(int(self.time - 60 * int(self.minutesElapsed()))) + "sec - Lair Starts")
+                    self.lairStarted = True
 
+        # Start Hive
+        if self.units(LAIR).ready.idle.exists and self.townhalls.ready.amount >= 5 and self.actualDroneSupply > 80 and self.units(INFESTATIONPIT).ready.exists and self.units(SPIRE).exists:
+            if not self.hiveStarted:
+                self.enableArmyProduction.append(False)
+                self.enableDroneProduction.append(False)
+                self.enableQueenProduction.append(False)
+                if self.can_afford(HIVE):
+                    await self.do(self.units(LAIR).ready.idle.random(UPGRADETOHIVE_HIVE))
+                    await self.chat_send(str(int(self.minutesElapsed())) + "min " + str(int((self.time - 60 * int(self.minutesElapsed())))) + "sec - Hive Starts")
+                    self.hiveStarted = True
         """""""""""""""
              MACRO
            OVERLORDS
         """""""""""""""
         # Overlord Start Conditions (More than 3 Overlords)
-        # At least 3 overlords finished
-        if self.units(LARVA).exists and self.supply_cap < 200 and self.supply_left <= 8 and self.units(OVERLORD).ready.amount >= 3:
+        # At least 2 minutes have passed
+        if self.units(LARVA).exists and self.supply_cap < 200 and self.supply_left <= 8 and self.minutesElapsed() > 2.0:
             if self.already_pending(OVERLORD) == 0:
                 self.enableQueenProduction.append(False)
                 self.enableDroneProduction.append(False)
@@ -341,8 +369,7 @@ class AreologyBot(sc2.BotAI):
              MACRO
            EXPANDING
         """""""""""""""
-        if self.minutesElapsed() >= 6 and self.supply_used >= 140 and self.townhalls.ready.amount >= 3:      self.townhallsLimit = 8
-        elif self.minutesElapsed() >= 5 and self.actualDroneSupply >= 35 and self.townhalls.amount == 3:     self.townhallsLimit = 4
+        if self.minutesElapsed() >= 5 and self.actualDroneSupply >= 44 and self.townhalls.amount >= 3:       self.townhallsLimit = 8
         elif self.actualDroneSupply >= 29 and self.actualQueenCount >= 2 and self.townhalls.amount == 2:     self.townhallsLimit = 3
         elif self.actualDroneSupply >= 17:                                                                   self.townhallsLimit = 2
         else:                                                                                                self.townhallsLimit = 1
@@ -378,9 +405,9 @@ class AreologyBot(sc2.BotAI):
                         break
         """""""""""""""
              CREEP
-            SPREAD
+           SPREADING
         """""""""""""""
-        await self.doCreepSpread()
+        await self.spreadCreep()
         """""""""""""""
              MACRO
             UPGRADE
@@ -421,23 +448,35 @@ class AreologyBot(sc2.BotAI):
                         if self.can_afford(ability):
                             await self.do(hydralisk_den(ability))
 
-        # Research Missile and Armor Upgrades immediately after Evolution Chambers finish
-        ### Add in melee upgrades too once hive finishes
-        if self.units(EVOLUTIONCHAMBER).ready:
+        # Research Missile and Armor Upgrades immediately after Evolution Chambers finished
+        if self.units(EVOLUTIONCHAMBER).ready and not self.units(HIVE).ready:
             for evolution_chamber in self.units(EVOLUTIONCHAMBER).ready.noqueue:
-                available_evolution_upgrades = await self.get_available_abilities(evolution_chamber)
-                important_evolution_upgrades = [AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL1, AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL2, \
-                AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL3, AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL1, \
-                AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL2, AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL3]
-                for ability in important_evolution_upgrades:
-                    if ability in available_evolution_upgrades:
-                        self.enableDroneProduction.append(False)
-                        self.enableArmyProduction.append(False)
-                        if self.can_afford(ability):
-                            await self.do(evolution_chamber(ability))
+                if not self.units(HIVE).ready:
+                    available_evolution_upgrades = await self.get_available_abilities(evolution_chamber)
+                    important_evolution_upgrades = [AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL1, AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL2, \
+                    AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL3, AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL1, \
+                    AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL2, AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL3]
+                    for ability in important_evolution_upgrades:
+                        if ability in available_evolution_upgrades:
+                            self.enableDroneProduction.append(False)
+                            self.enableArmyProduction.append(False)
+                            if self.can_afford(ability):
+                                await self.do(evolution_chamber(ability))
+                else:
+                    available_evolution_upgrades = await self.get_available_abilities(evolution_chamber)
+                    important_evolution_upgrades = [AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL1, AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL2, \
+                    AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL3, AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL1, \
+                    AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL2, AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL3, \
+                    AbilityID.RESEARCH_ZERGMELEEWEAPONSLEVEL1, AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL2, AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL3]
+                    for ability in important_evolution_upgrades:
+                        if ability in available_evolution_upgrades:
+                            self.enableDroneProduction.append(False)
+                            self.enableArmyProduction.append(False)
+                            if self.can_afford(ability):
+                                await self.do(evolution_chamber(ability))
 
-        # Research Burrow after 4 townhalls
-        if not self.burrowUpgradeStarted and self.townhalls.ready.amount >= 4:
+        # Research Burrow once lair is finished
+        if not self.burrowUpgradeStarted and self.units(LAIR).ready:
             for hatch in self.units(HATCHERY).ready.noqueue:
                 abilities = await self.get_available_abilities(hatch)
                 if AbilityId.RESEARCH_BURROW in abilities:
@@ -470,17 +509,6 @@ class AreologyBot(sc2.BotAI):
                     await self.build(EVOLUTIONCHAMBER, near = self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5))
                     await self.build(EVOLUTIONCHAMBER, near = self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5))
 
-
-        # Start Lair no sooner than 5:30
-        if self.units(HATCHERY).ready.idle and self.minutesElapsed() >= 5.5 and self.actualDroneSupply > 50 and self.units(SPAWNINGPOOL).ready:
-            if not self.lairStarted:
-                self.enableArmyProduction.append(False)
-                self.enableDroneProduction.append(False)
-                self.enableQueenProduction.append(False)
-                if self.can_afford(LAIR):
-                    await self.do(self.units(HATCHERY).ready.idle.random(UPGRADETOLAIR_LAIR))
-                    self.lairStarted = True
-
         # Start Hydralisk Den immediatley after Lair finishes
         if self.units(DRONE).exists and self.units(LAIR).ready.exists:
             if self.units(HYDRALISKDEN).amount + self.already_pending(HYDRALISKDEN) < 1:
@@ -505,16 +533,6 @@ class AreologyBot(sc2.BotAI):
                 if self.can_afford(SPIRE):
                     await self.build(SPIRE, near = self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5))
 
-        # Start Hive: No sooner than 8:30
-        if self.units(LAIR).ready.idle.exists and self.minutesElapsed() > 8.5 and self.actualDroneSupply > 80 and self.units(INFESTATIONPIT).ready and self.units(SPIRE).exists:
-            if not self.hiveStarted:
-                self.enableArmyProduction.append(False)
-                self.enableDroneProduction.append(False)
-                self.enableQueenProduction.append(False)
-                if self.can_afford(HIVE):
-                    await self.do(self.units(LAIR).ready.idle.random(UPGRADETOHIVE_HIVE))
-                    self.hiveStarted = True
-
         # Start Greater Spire immediately after hive is finished
         if self.units(HIVE).ready and self.units(SPIRE).ready.idle.exists:
             if not self.greaterspireStarted:
@@ -523,31 +541,44 @@ class AreologyBot(sc2.BotAI):
                 self.enableQueenProduction.append(False)
                 if self.can_afford(GREATERSPIRE):
                     await self.do(self.units(SPIRE).ready.idle.random(UPGRADETOGREATERSPIRE_GREATERSPIRE))
+                    await self.chat_send(str(int(self.minutesElapsed())) + "min " + str(int((self.time - 60 * int(self.minutesElapsed())))) + "sec - Greater Spire Starts")
                     self.greaterspireStarted = True
         """""""""""""""
            TEMPORARY
          ATK ALGORITHM
         """""""""""""""
-        # Attack if at least 195 Supply
-        if self.supply_used >= 195:
-            aggressive_units = {ZERGLING: [1], ROACH: [1], HYDRALISK: [1], OVERSEER: [1], BROODLORD: [1]}
+        # Attack if at least 190 Supply
+        if self.supply_used >= 190:
+            aggressive_units = {ROACH: [1], HYDRALISK: [1], OVERSEER: [1], BROODLORD: [1]}
             for attackforce in aggressive_units:
                 for attacksquad in self.units(attackforce).idle:
                     for base in self.townhalls.ready:
-                        if self.known_enemy_units.closer_than(35.0, base).exists:
-                            # Defense Radius is 30
-                            await self.do(attacksquad.attack(random.choice(self.known_enemy_units.closer_than(35.0, base))))
-                        else:
+                        if self.known_enemy_units.exists:
                             await self.do(attacksquad.attack(self.enemy_start_locations[0]))
+            aggressive_lings = {ZERGLING: [6]}
+            for lingforce in aggressive_lings:
+                for lingsquad in self.units(lingforce).idle:
+                    if self.known_enemy_units.exists:
+                        await self.do(lingsquad.attack(random.choice(self.known_enemy_units)))
+                    elif self.known_enemy_structures.exists:
+                        await self.do(lingsquad.attack(random.choice(self.known_enemy_structures)))
         # Otherwise Defend
         else:
-            defensive_units = {QUEEN: [1], ZERGLING: [1], ROACH: [1], HYDRALISK: [1], OVERSEER: [1], BROODLORD: [1]}
+            defensive_units = {ZERGLING: [1], ROACH: [1], HYDRALISK: [1], OVERSEER: [1], BROODLORD: [1]}
             for defenseforce in defensive_units:
                 for defensesquad in self.units(defenseforce).idle:
-                    for base in self.townhalls.ready:
-                        if self.known_enemy_units.closer_than(35.0, base).exists:
-                            # Defense Radius is 30
-                            await self.do(defensesquad.attack(random.choice(self.known_enemy_units.closer_than(35.0, base))))
+                    for base in self.townhalls:
+                        # Defense Radius is 40
+                        if self.known_enemy_units.closer_than(40.0, base).exists:
+                            await self.do(defensesquad.attack(random.choice(self.known_enemy_units.closer_than(40.0, base))))
+                        else:
+                            await self.do(defensesquad.attack(self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5)))
+            defensive_queens = {QUEEN: [1]}
+            for defensequeen in defensive_queens:
+                for queensquad in self.units(defensequeen).idle:
+                    for base in self.townhalls:
+                        if self.known_enemy_units.closer_than(40.0, base).exists:
+                            await self.do(queensquad.attack(random.choice(self.known_enemy_units.closer_than(40.0, base))))
 
         """""""""""""""
         UNIT PRODUCTION AT END OF ITERATION
@@ -569,7 +600,9 @@ class AreologyBot(sc2.BotAI):
              MACRO
         QUEEN PRODUCTION
         """""""""""""""
-        if self.townhalls.ready.amount >= 3 and self.units(SPAWNINGPOOL).ready:       self.queenLimit = self.townhalls.ready.amount + 4
+        # Queens cap at 12 since only 8 townhalls are allowed
+        if self.townhalls.ready.amount >= 3 and self.units(SPAWNINGPOOL).ready \
+        and self.units(LAIR).exists:                                                  self.queenLimit = self.townhalls.ready.amount + 4
         elif self.townhalls.ready.amount == 2 and self.units(SPAWNINGPOOL).ready:     self.queenLimit = 3
         else:                                                                         self.queenLimit = 0
 
@@ -593,22 +626,25 @@ class AreologyBot(sc2.BotAI):
         self.enableBroodlordProduction = False
 
         if self.units(SPAWNINGPOOL).ready:
-            if not self.units(ROACHWARREN).ready and self.actualZerglingCount < 2 and self.actualDroneSupply < 50:  self.enableZerglingProduction = True
+            if self.townhalls.ready.amount >= 3 and self.actualZerglingPairCount < 8 \
+            and not self.units(GREATERSPIRE).ready.exists and self.supply_used < 90:                         self.enableZerglingProduction = True
+            elif self.townhalls.ready.amount >= 3 and self.actualZerglingPairCount < 8 \
+            and self.units(GREATERSPIRE).ready.exists \
+            and self.supply_used < 60 + self.actualCorruptorCount + self.actualBroodlordCount:               self.enableZerglingProduction = True
 
         if self.units(ROACHWARREN).ready:
-            if not self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready:                           self.enableRoachProduction = True
+            if not self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready:                    self.enableRoachProduction = True
             elif self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready \
-            and self.actualRoachCount < 1 * self.actualHydraliskCount and self.actualArmySupply < 115:            self.enableRoachProduction = True
-            elif self.units(HYDRALISKDEN).ready and self.units(GREATERSPIRE).ready \
-            and self.actualRoachCount < 0.5 * self.actualHydraliskCount and self.actualArmySupply < 85:             self.enableRoachProduction = True
+            and self.actualRoachCount < 0.50 * self.actualHydraliskCount and self.supply_used < 90:          self.enableRoachProduction = True
 
         if self.units(HYDRALISKDEN).ready:
-            if not self.units(GREATERSPIRE).ready:                                                                  self.enableHydraliskProduction = True
-            elif self.units(GREATERSPIRE).ready and self.actualArmySupply < 85:                                     self.enableHydraliskProduction = True
+            if not self.units(GREATERSPIRE).ready:                                                           self.enableHydraliskProduction = True
+            elif self.units(GREATERSPIRE).ready \
+            and self.supply_used < 60 + self.actualCorruptorCount + self.actualBroodlordCount:               self.enableHydraliskProduction = True
 
         if self.units(GREATERSPIRE).ready:
-            if self.actualCorruptorCount + self.actualBroodlordCount < 7:                                           self.enableCorrupterProduction = True
-            if self.units(CORRUPTOR).idle.exists:                                                                   self.enableBroodlordProduction = True
+            if self.actualCorruptorCount + self.actualBroodlordCount < 7:                                    self.enableCorrupterProduction = True
+            if self.units(CORRUPTOR).idle.exists:                                                            self.enableBroodlordProduction = True
 
         # BUILD UNITS
         if all(self.enableArmyProduction) and self.units(LARVA).exists:
@@ -628,18 +664,17 @@ class AreologyBot(sc2.BotAI):
                 if self.can_afford(HYDRALISK):
                         await self.do(self.units(LARVA).random.train(HYDRALISK))
 
-            # Start Corrupters once Greater Spire is finished
-            if self.enableCorrupterProduction and self.supply_left >= 2:
-                if self.can_afford(CORRUPTOR):
-                    await self.do(self.units(LARVA).random.train(CORRUPTOR))
+        # Corrupters/Broodlords are not limited by enableArmyProduction
+        # Start Corrupters once Greater Spire is finished
+        if self.enableCorrupterProduction and self.supply_left >= 2:
+            if self.can_afford(CORRUPTOR):
+                await self.do(self.units(LARVA).random.train(CORRUPTOR))
 
-        # MORPH UNITS
-        if all(self.enableArmyProduction):
-            # Morph Broodlord once Corrupter is finished
-            if self.enableBroodlordProduction and self.supply_left >= 2:
-                if self.can_afford(BROODLORD):
-                    LowestHealthIdleCorrupter = min(self.units(CORRUPTOR), key=lambda x:x.health)
-                    await self.do(LowestHealthIdleCorrupter(MORPHTOBROODLORD_BROODLORD))
+        # Morph Broodlord once Corrupter is finished
+        if self.enableBroodlordProduction and self.supply_left >= 2:
+            if self.can_afford(BROODLORD):
+                LowestHealthIdleCorrupter = min(self.units(CORRUPTOR), key=lambda x:x.health)
+                await self.do(LowestHealthIdleCorrupter(MORPHTOBROODLORD_BROODLORD))
 """""""""""""""
     TESTING
 """""""""""""""
@@ -653,7 +688,7 @@ def main():
 
     sc2.run_game(maps.get("CyberForestLE"), [
         Bot(Race.Zerg, AreologyBot()),
-        Computer(COMPUTER_RACE[3], COMPUTER_DIFFICULTY[6])
+        Computer(COMPUTER_RACE[3], COMPUTER_DIFFICULTY[3])
     ], realtime = False)
 
 if __name__ == '__main__':
