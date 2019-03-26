@@ -14,6 +14,9 @@ from sc2.ids.upgrade_id import *
 from sc2.position import Point2, Point3
 from sc2.player import Bot, Computer, Human
 
+# Custom Imports
+# from AreologyBot import TestFile
+
 # note: self.townhalls.amount = number of hatcheries + lairs + hives
 # note: foo.exists (can be buildling)
 # note: bar.ready (is already finished)
@@ -259,13 +262,13 @@ class AreologyBot(sc2.BotAI):
         self.enableQueenProduction = [True] # Only used when building Lair and Hive
 
         # Unit Count (existing and in production)
-        self.actualOverlordCount =  self.units(OVERLORD).amount + self.already_pending(OVERLORD)
-        self.actualQueenCount =     self.units(QUEEN).amount + self.already_pending(QUEEN)
+        self.actualOverlordCount =      self.units(OVERLORD).amount + self.already_pending(OVERLORD)
+        self.actualQueenCount =         self.units(QUEEN).amount + self.already_pending(QUEEN)
         self.actualZerglingPairCount =  self.units(ZERGLING).amount + self.already_pending(ZERGLING)
-        self.actualRoachCount =     self.units(ROACH).amount + self.already_pending(ROACH)
-        self.actualHydraliskCount = self.units(HYDRALISK).amount + self.already_pending(HYDRALISK)
-        self.actualCorruptorCount = self.units(CORRUPTOR).amount + self.already_pending(CORRUPTOR)
-        self.actualBroodlordCount = self.units(BROODLORD).amount + self.units(BROODLORDCOCOON).amount
+        self.actualRoachCount =         self.units(ROACH).amount + self.already_pending(ROACH)
+        self.actualHydraliskCount =     self.units(HYDRALISK).amount + self.already_pending(HYDRALISK)
+        self.actualCorruptorCount =     self.units(CORRUPTOR).amount + self.already_pending(CORRUPTOR)
+        self.actualBroodlordCount =     self.units(BROODLORD).amount + self.units(BROODLORDCOCOON).amount
 
         # Worker Supply (existing + in production + in gas)
         self.actualDroneSupply = self.units(DRONE).amount + self.already_pending(DRONE) + self.units(EXTRACTOR).ready.filter(lambda x:x.vespene_contents > 0).amount
@@ -572,14 +575,15 @@ class AreologyBot(sc2.BotAI):
                         if self.known_enemy_units.closer_than(40.0, base).exists:
                             await self.do(defensesquad.attack(random.choice(self.known_enemy_units.closer_than(40.0, base))))
                         else:
-                            await self.do(defensesquad.attack(self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5)))
+                            await self.do(defensesquad.move(self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5)))
             defensive_queens = {QUEEN: [1]}
             for defensequeen in defensive_queens:
                 for queensquad in self.units(defensequeen).idle:
                     for base in self.townhalls:
                         if self.known_enemy_units.closer_than(40.0, base).exists:
                             await self.do(queensquad.attack(random.choice(self.known_enemy_units.closer_than(40.0, base))))
-
+                        else:
+                            await self.do(defensesquad.attack(self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5)))
         """""""""""""""
         UNIT PRODUCTION AT END OF ITERATION
         FOR UPGRADE/BUILDING PRIORITIZATION
@@ -626,21 +630,21 @@ class AreologyBot(sc2.BotAI):
         self.enableBroodlordProduction = False
 
         if self.units(SPAWNINGPOOL).ready:
-            if self.townhalls.ready.amount >= 3 and self.actualZerglingPairCount < 8 \
+            if self.townhalls.ready.amount >= 3 and self.actualZerglingPairCount < 10 \
             and not self.units(GREATERSPIRE).ready.exists and self.supply_used < 90:                         self.enableZerglingProduction = True
-            elif self.townhalls.ready.amount >= 3 and self.actualZerglingPairCount < 8 \
+            elif self.townhalls.ready.amount >= 3 and self.actualZerglingPairCount < 10 \
             and self.units(GREATERSPIRE).ready.exists \
             and self.supply_used < 60 + self.actualCorruptorCount + self.actualBroodlordCount:               self.enableZerglingProduction = True
 
         if self.units(ROACHWARREN).ready:
             if not self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready:                    self.enableRoachProduction = True
             elif self.units(HYDRALISKDEN).ready and not self.units(GREATERSPIRE).ready \
-            and self.actualRoachCount < 0.50 * self.actualHydraliskCount and self.supply_used < 90:          self.enableRoachProduction = True
+            and self.actualRoachCount < 0.50 * self.actualHydraliskCount and self.supply_used < 190:         self.enableRoachProduction = True
 
         if self.units(HYDRALISKDEN).ready:
             if not self.units(GREATERSPIRE).ready:                                                           self.enableHydraliskProduction = True
             elif self.units(GREATERSPIRE).ready \
-            and self.supply_used < 60 + self.actualCorruptorCount + self.actualBroodlordCount:               self.enableHydraliskProduction = True
+            and self.supply_used < 160 + self.actualCorruptorCount + self.actualBroodlordCount:              self.enableHydraliskProduction = True
 
         if self.units(GREATERSPIRE).ready:
             if self.actualCorruptorCount + self.actualBroodlordCount < 7:                                    self.enableCorrupterProduction = True
@@ -689,7 +693,7 @@ def main():
     sc2.run_game(maps.get("CyberForestLE"), [
         Bot(Race.Zerg, AreologyBot()),
         Computer(COMPUTER_RACE[3], COMPUTER_DIFFICULTY[3])
-    ], realtime = False)
+    ], realtime = False, save_replay_as="AreologyBot.SC2Replay")
 
 if __name__ == '__main__':
     main()
