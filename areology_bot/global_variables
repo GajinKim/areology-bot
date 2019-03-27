@@ -1,31 +1,27 @@
 from sc2.constants import *
 
-class DataContainer:
+class GlobalVariables:
     def __init__(self):
         self.nearby_enemy_units = False
         self.nearby_enemey_buildings = False
 
-        # Macro Units
-        self.larvae = None, self.drones = None, self.queens = None, self.overlords = None
+        self.larvae = self.drones = self.queens = self.overlords = None # Macro Units
 
-        # Army Units
-        self.zerglings = None, self.roaches = None, self.hydralisks = None
-        self.overseers = None, self.corrupters = None, self.broodlords = None
+        self.zerglings = self.roaches = self.hydralisks = \
+        self.overseers = self.corrupters = self.broodlords = None # Army Units
 
-        # Buildings
-        self.hatcheries = None, self.lairs = None, self.hives = None, self.extractors = None
-        self.spawning_pools = None, self.roach_warrens = None, self.hydralisk_dens = None
-        self.evolution_chambers = None, self.infestation_pits = None,
+        self.hatcheries = self.lairs = self.hives = self.extractors = \
+        self.spawning_pools = self.roach_warrens = self.hydralisk_dens = \
+        self.evolution_chambers = self.infestation_pits = self.spires = \
+        self.greater_spires = self.spore_crawlers = self.spine_crawlers = None # Structures
 
+        self.furthest_townhall_from_map_center = None # Furthest Townhall (used for building placement)
 
+        self.burrowed_drones = [], self.burrowed_queens = [], self.burrowed_zerglings = [], \
+        self.burrowed_roaches = [], self.burrowed_hydralisks = [] # Burrowed Units
 
-        self.floating_buildings_bm = self.one_base_play = False
-        self.hatcheries = self.lairs = self.hives = self.hydras =
-        self.zerglings = self.ultralisks = self.overseers = self.evochambers = self.caverns = self.hydradens = None
-        self.pools = self.pits = self.spines = self.tumors = self.larvae = self.extractors = self.mutalisks = None
-        self.spores = self.spires = self.structures = self.enemies = self.enemy_structures = self.flying_enemies = None
-        self.ground_enemies = self.furthest_townhall_to_map_center = None
-        self.burrowed_roaches = []
+        self.enemy_units = self.ground_enemey_units = self.flying_enemy_units = None # Enemy Units
+        self.enemy_structures = self.flying_enemy_structures = None # Enemy Structures
 
     def prepare_data(self):
         """Prepares the data"""
