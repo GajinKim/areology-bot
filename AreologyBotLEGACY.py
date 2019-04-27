@@ -583,7 +583,7 @@ class AreologyBot(sc2.BotAI):
                         if self.known_enemy_units.closer_than(40.0, base).exists:
                             await self.do(queensquad.attack(random.choice(self.known_enemy_units.closer_than(40.0, base))))
                         else:
-                            await self.do(defensesquad.attack(self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5)))
+                            await self.do(queensquad.attack(self.units(HATCHERY).first.position.towards(self.game_info.map_center, 5)))
         """""""""""""""
         UNIT PRODUCTION AT END OF ITERATION
         FOR UPGRADE/BUILDING PRIORITIZATION
@@ -693,7 +693,7 @@ def main():
     sc2.run_game(maps.get("CyberForestLE"), [
         Bot(Race.Zerg, AreologyBot()),
         Computer(COMPUTER_RACE[3], COMPUTER_DIFFICULTY[3])
-    ], realtime = False, save_replay_as="AreologyBot.SC2Replay")
+    ], realtime = True, save_replay_as="AreologyBot.SC2Replay")
 
 if __name__ == '__main__':
     main()
