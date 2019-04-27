@@ -693,7 +693,7 @@ def main():
     sc2.run_game(maps.get("CyberForestLE"), [
         Bot(Race.Zerg, AreologyBot()),
         Computer(COMPUTER_RACE[3], COMPUTER_DIFFICULTY[3])
-    ], realtime = False, save_replay_as="AreologyBot.SC2Replay")
+    ], realtime = True, save_replay_as="AreologyBot.SC2Replay")
 
 if __name__ == '__main__':
     main()
