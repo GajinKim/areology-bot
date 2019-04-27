@@ -14,6 +14,7 @@ from sc2.ids.upgrade_id import *
 from sc2.position import Point2, Point3
 from sc2.player import Bot, Computer, Human
 
+# author: GaJin Kim
 # Custom Imports
 # from AreologyBot import TestFile
 
