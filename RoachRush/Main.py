@@ -278,7 +278,7 @@ def main():
             sc2.AIBuild.Air,
         ]
     )
-    builtin_bot = sc2.player.Computer(race, sc2.Difficulty.VeryHard, build)
+    builtin_bot = sc2.player.Computer(race, sc2.Difficulty.CheatInsane, sc2.AIBuild.Rush)
     random_map = random.choice(
         [
             "AutomatonLE",
