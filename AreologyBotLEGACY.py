@@ -14,10 +14,6 @@ from sc2.ids.upgrade_id import *
 from sc2.position import Point2, Point3
 from sc2.player import Bot, Computer, Human
 
-# author: GaJin Kim
-# Custom Imports
-# from AreologyBot import TestFile
-
 # note: self.townhalls.amount = number of hatcheries + lairs + hives
 # note: foo.exists (can be buildling)
 # note: bar.ready (is already finished)
@@ -694,7 +690,7 @@ def main():
     sc2.run_game(maps.get("CyberForestLE"), [
         Bot(Race.Zerg, AreologyBot()),
         Computer(COMPUTER_RACE[3], COMPUTER_DIFFICULTY[3])
-    ], realtime = False, save_replay_as="AreologyBot.SC2Replay")
+    ], realtime = False, save_replay_as="AreologyReplay.SC2Replay")
 
 if __name__ == '__main__':
     main()
