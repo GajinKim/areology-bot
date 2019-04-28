@@ -11,7 +11,7 @@ from sc2.constants import *
 from sc2.ids.ability_id import *
 from sc2.ids.unit_typeid import *
 from sc2.ids.upgrade_id import *
-from sc2.position import Point2, Point3
+from sc2.position import *
 from sc2.player import Bot, Computer, Human
 
 # note: self.townhalls.amount = number of hatcheries + lairs + hives
@@ -414,7 +414,7 @@ class AreologyBot(sc2.BotAI):
         """""""""""""""
         # Research Metabolic Boost and Adrenal Glands
         if self.units(SPAWNINGPOOL).ready:
-            for spawning_pool in self.units(SPAWNINGPOOL).ready.noqueue:
+            for spawning_pool in self.units(SPAWNINGPOOL).ready.idle:
                 available_zergling_upgrades = await self.get_available_abilities(spawning_pool)
                 important_zergling_upgrades = [AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST, AbilityId.RESEARCH_ZERGLINGADRENALGLANDS]
                 for ability in important_zergling_upgrades:
@@ -426,7 +426,7 @@ class AreologyBot(sc2.BotAI):
 
         # Research Glial Regeneration (technically Reconstitution) and Tunneling Claws
         if self.units(ROACHWARREN).ready and self.units(LAIR).ready:
-            for roach_warren in self.units(ROACHWARREN).ready.noqueue:
+            for roach_warren in self.units(ROACHWARREN).ready.idle:
                 available_roach_upgrades = await self.get_available_abilities(roach_warren)
                 important_roach_upgrades = [AbilityId.RESEARCH_GLIALREGENERATION, AbilityId.RESEARCH_TUNNELINGCLAWS]
                 for ability in important_roach_upgrades:
@@ -438,7 +438,7 @@ class AreologyBot(sc2.BotAI):
 
         # Research Muscular Augments and Grooved Spines
         if self.units(HYDRALISKDEN).ready:
-            for hydralisk_den in self.units(HYDRALISKDEN).ready.noqueue:
+            for hydralisk_den in self.units(HYDRALISKDEN).ready.idle:
                 available_hydra_upgrades = await self.get_available_abilities(hydralisk_den)
                 important_hydra_upgrades = [AbilityId.RESEARCH_MUSCULARAUGMENTS, AbilityId.RESEARCH_GROOVEDSPINES]
                 for ability in important_hydra_upgrades:
@@ -450,7 +450,7 @@ class AreologyBot(sc2.BotAI):
 
         # Research Missile and Armor Upgrades immediately after Evolution Chambers finished
         if self.units(EVOLUTIONCHAMBER).ready and not self.units(HIVE).ready:
-            for evolution_chamber in self.units(EVOLUTIONCHAMBER).ready.noqueue:
+            for evolution_chamber in self.units(EVOLUTIONCHAMBER).ready.idle:
                 if not self.units(HIVE).ready:
                     available_evolution_upgrades = await self.get_available_abilities(evolution_chamber)
                     important_evolution_upgrades = [AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL1, AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL2, \
@@ -477,7 +477,7 @@ class AreologyBot(sc2.BotAI):
 
         # Research Burrow once lair is finished
         if not self.burrowUpgradeStarted and self.units(LAIR).ready:
-            for hatch in self.units(HATCHERY).ready.noqueue:
+            for hatch in self.units(HATCHERY).ready.idle:
                 abilities = await self.get_available_abilities(hatch)
                 if AbilityId.RESEARCH_BURROW in abilities:
                     self.enableArmyProduction.append(False)
@@ -610,7 +610,7 @@ class AreologyBot(sc2.BotAI):
         # Early Game Queen Production Conditions
         # Spawning Pool exists and fewer than 2 or fewer townhalls are ready
         if all(self.enableQueenProduction) and self.supply_left >= 2 and self.actualQueenCount < self.queenLimit:
-            for hatch in self.units(HATCHERY).ready.noqueue:
+            for hatch in self.units(HATCHERY).ready.idle:
                 self.enableDroneProduction.append(False)
                 self.enableArmyProduction.append(False)
                 if self.can_afford(QUEEN):
@@ -681,16 +681,16 @@ class AreologyBot(sc2.BotAI):
 """""""""""""""
 def main():
     """""""""""""""
-    [0] Terran | [1] Protoss | [2] Zerg | [3] Random
-    [0] Easy | [1] Medium | [2] Hard | [3] Elite | [4] Cheat Vision | [5] Cheat Money | [6] Cheat Insane
+    [0] Terran   | [1] Protoss  | [2] Zerg     | [3] Random
+    [0] Easy     | [1] Medium   | [2] Hard     | [3] Elite    | [4] Cheat Vision | [5] Cheat Money | [6] Cheat Insane
     """""""""""""""
     COMPUTER_RACE = [Race.Terran, Race.Protoss, Race.Zerg, Race.Random]
-    COMPUTER_DIFFICULTY = [Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.VeryHard, Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane]
+    COMPUTER_DIFF = [Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.VeryHard, Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane]
 
-    sc2.run_game(maps.get("CyberForestLE"), [
-        Bot(Race.Zerg, AreologyBot()),
-        Computer(COMPUTER_RACE[3], COMPUTER_DIFFICULTY[3])
-    ], realtime = False, save_replay_as="AreologyReplay.SC2Replay")
+    RANDOM_MAP = random.choice(["BlueShiftLE", "CeruleanFallLE", "KairosJunctionLE", "ParaSiteLE", "PortAleksanderLE", "StasisLE", "CyberForestLE", "KingsCoveLE", "NewRepugnancyLE", "YearZeroLE" ])
+
+    sc2.run_game(maps.get(RANDOM_MAP), [Bot(Race.Zerg, AreologyBot()), Computer(COMPUTER_RACE[3], COMPUTER_DIFF[3])
+    ], realtime = False, save_replay_as="aReplays.SC2Replay")
 
 if __name__ == '__main__':
     main()
