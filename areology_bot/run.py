@@ -30,9 +30,6 @@ if __name__ == "__main__":
 
         enemy_bot = sc2.player.Computer(race[2], difficulty[3], build[5])
 
-
-        sc2.run_game(sc2.maps.get(random_map), [my_bot, enemy_bot
-        ],
+        sc2.run_game(sc2.maps.get(random_map), [my_bot, enemy_bot],
         realtime = False,
-        save_replay_as="aReplays.SC2Replay"
-        )
+        save_replay_as="aReplays.SC2Replay")
