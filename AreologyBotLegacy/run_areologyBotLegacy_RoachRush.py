@@ -23,9 +23,9 @@ if __name__ == "__main__":
 
         # Computer(race, difficulty, build)
         """
-        race:       [0] Random | [1] Terran | [2] Protoss | [3] Zerg
-        difficulty: [0] Easy   | [1] Medium | [2] Hard    | [3] V Hard  | [4] Cheat Vision | [5] Cheat Money | [6] Cheat Insane
-        build:      [1] Random | [1] Rush   | [2] Timing  | [3] Power   | [4] Macro        | [5] Air
+        race:       [0] Random  | [1] Terran  | [2] Protoss | [3] Zerg
+        difficulty: [0] Easy    | [1] Medium  | [2] Hard    | [3] V Hard   | [4] C Vision | [5] C Money | [6] C Insane
+        build:      [1] Random  | [1] Rush    | [2] Timing  | [3] Power    | [4] Macro    | [5] Air
         """
         race = [Race.Random, Race.Terran, Race.Protoss, Race.Zerg]
         difficulty = [Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.VeryHard, Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane]
@@ -34,6 +34,4 @@ if __name__ == "__main__":
         enemy_bot = sc2.player.Bot(Race.Zerg, RoachRush())
 
         sc2.run_game(sc2.maps.get(random_map), [my_bot, enemy_bot],
-        realtime = False,
-        save_replay_as="aReplays.SC2Replay"
-        )
+        realtime = False)
