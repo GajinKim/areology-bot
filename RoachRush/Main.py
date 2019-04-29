@@ -262,37 +262,3 @@ class RoachRush(sc2.BotAI):
             and self.supply_left + self.already_pending(UnitID.OVERLORD) * 8 < 3 + self.supply_used // 7
         ):
             self.actions.append(self.larvae.first.train(UnitID.OVERLORD))
-
-
-def main():
-    bot = sc2.player.Bot(sc2.Race.Zerg, RoachRush())
-    # fixed race seems to use different strats than sc2.Race.Random
-    race = random.choice([sc2.Race.Zerg, sc2.Race.Terran, sc2.Race.Protoss, sc2.Race.Random])
-    build = random.choice(
-        [
-            # sc2.AIBuild.RandomBuild,
-            sc2.AIBuild.Rush,
-            sc2.AIBuild.Timing,
-            sc2.AIBuild.Power,
-            sc2.AIBuild.Macro,
-            sc2.AIBuild.Air,
-        ]
-    )
-    builtin_bot = sc2.player.Computer(race, sc2.Difficulty.CheatInsane, sc2.AIBuild.Rush)
-    random_map = random.choice(
-        [
-            "AutomatonLE",
-            # "BlueshiftLE",
-            # "CeruleanFallLE",
-            # "KairosJunctionLE",
-            # "ParaSiteLE",
-            # "PortAleksanderLE",
-            # "StasisLE",
-            # "DarknessSanctuaryLE"  # 4 player map, bot is ready for it but has to find enemy first
-        ]
-    )
-    sc2.run_game(sc2.maps.get(random_map), [bot, builtin_bot], realtime=False)
-
-
-if __name__ == "__main__":
-    main()

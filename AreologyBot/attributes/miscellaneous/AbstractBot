@@ -1,4 +1,0 @@
-from .InterfaceBot import InterfaceBot
-
-class AbstractBot(InterfaceBot):
-    pass

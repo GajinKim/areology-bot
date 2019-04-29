@@ -48,7 +48,7 @@ if __name__ == "__main__":
         )
         # map_name = "(2)16-BitLE"
         sc2.run_game(
-            sc2.maps.get(map_name),
+            sc2.maps.get("YearZeroLE"),
             [
                 # Human(Race.Terran),
                 bot,
