@@ -13,8 +13,7 @@ class my_vars:
         self.drones = self.units(UnitID.DRONE)
         self.larvae = self.units(UnitID.LARVA)
         self.queens = self.units(UnitID.QUEEN)
-        self.ground_army = self.units.filter(lambda unit: unit.type_id in {UnitID.ZERGLING, UnitID.BANELING})
-        self.air_army = self.units.filter(lambda unit: unit.type_id in {UnitID.MUTALISK, UnitID.OVERSEER})
+        self.army = self.units.filter(lambda unit: unit.type_id in {UnitID.ROACH, UnitID.ZERGLING})
 
     def initialize_units_types(self):
         """Initialize our units"""

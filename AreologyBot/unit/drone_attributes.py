@@ -1,7 +1,7 @@
 import sc2
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 
-class macro_drones:
+class drone_attributes:
     def fill_extractors(self):
         for extractor in self.units(UnitID.EXTRACTOR):
             # returns negative value if not enough workers
@@ -13,3 +13,12 @@ class macro_drones:
                         # prevent crash by only taking the minimum
                         drone = drones_with_no_minerals[min(n, drones_with_no_minerals.amount) - 1]
                         self.actions.append(drone.gather(extractor))
+
+    async def split_workers(self):
+        # split supply_workers
+        for drone in self.drones:
+            # find closest mineral patch
+            closest_mineral_patch = self.state.mineral_field.closest_to(drone)
+            self.actions.append(drone.gather(closest_mineral_patch))
+        # only do on_step every nth step, 8 is standard
+        self._client.game_step = 8

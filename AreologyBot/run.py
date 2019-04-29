@@ -28,7 +28,7 @@ if __name__ == "__main__":
         difficulty = [Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.VeryHard, Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane]
         build = [sc2.AIBuild.RandomBuild, sc2.AIBuild.Rush, sc2.AIBuild.Timing, sc2.AIBuild.Power, sc2.AIBuild.Macro, sc2.AIBuild.Air]
 
-        enemy_bot = sc2.player.Computer(race[2], difficulty[3], build[5])
+        enemy_bot = sc2.player.Computer(race[0], difficulty[6], build[1])
 
         sc2.run_game(sc2.maps.get(random_map), [my_bot, enemy_bot],
         realtime = False, save_replay_as="AreologyBotReplay.SC2Replay")

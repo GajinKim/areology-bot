@@ -1,4 +1,5 @@
 import sc2
+from sc2.ids.ability_id import AbilityId as AbilID
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import Point2
 
@@ -9,7 +10,7 @@ class build_order:
             return
         current_step = self.buildorder[self.buildorder_step]
         # do nothing if we are done already or dont have enough resources for current step of build order
-        if current_step == "END" or not self.can_afford(current_step):
+        if current_step == "BUILD ORDER FINISHED" or not self.can_afford(current_step):
             return
         # check if current step needs larva
         if current_step in self.from_larva and self.larvae:
@@ -27,6 +28,10 @@ class build_order:
             elif current_step == UnitID.HATCHERY:
                 position = await self.get_next_expansion()
             else:
+                if current_step == UnitID.ROACHWARREN:
+                    # check tech requirement
+                    if not self.units(UnitID.SPAWNINGPOOL).ready:
+                        return
                 # pick position towards ramp to avoid building between hatchery and resources
                 buildings_around = self.units(UnitID.HATCHERY).first.position.towards(self.main_base_ramp.depot_in_middle, 7)
                 position = await self.find_placement(building=current_step, near=buildings_around, placement_step=4)
@@ -42,5 +47,13 @@ class build_order:
                 return
             hatch = self.units(UnitID.HATCHERY).first
             self.actions.append(hatch.train(UnitID.QUEEN))
+            print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
+            self.buildorder_step += 1
+        elif current_step == AbilID.RESEARCH_ZERGLINGMETABOLICBOOST:
+            # tech requirement check
+            if not self.units(UnitID.SPAWNINGPOOL).ready:
+                return
+            pool = self.units(UnitID.SPAWNINGPOOL).first
+            self.actions.append(pool(AbilID.RESEARCH_ZERGLINGMETABOLICBOOST))
             print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
             self.buildorder_step += 1
