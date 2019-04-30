@@ -1,8 +1,8 @@
 import sc2
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 
-class drone_attributes:
-    def fill_extractors(self):
+class UnitDrone:
+    async def fillExtractors(self):
         for extractor in self.units(UnitID.EXTRACTOR):
             # returns negative value if not enough workers
             if extractor.surplus_harvesters < 0:
@@ -14,7 +14,7 @@ class drone_attributes:
                         drone = drones_with_no_minerals[min(n, drones_with_no_minerals.amount) - 1]
                         self.actions.append(drone.gather(extractor))
 
-    async def split_workers(self):
+    async def splitWorkers(self):
         # split supply_workers
         for drone in self.drones:
             # find closest mineral patch

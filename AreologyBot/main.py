@@ -1,20 +1,19 @@
 import itertools, random, math
 
-import sc2, attack, build, micro, train, unit
+import sc2
 from sc2.ids.ability_id import AbilityId as AbilID
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
-from sc2.position import Point2
+from sc2.position import *
 
-from attack.attack_force import *
-from build.build_order import *
-# from build.build_buildings import *
+import functions
+from functions.build.build_order import *
+from functions.build.Building import *
+from functions.train.TrainUnit import *
+from functions.unit.UnitDrone import *
+from functions.unit.UnitQueen import *
+from functions.unit.UnitArmy import *
 
-from train.train_units import *
-
-from unit.drone_attributes import *
-from unit.queen_attributes import *
-
-from my_vars import *
+from GlobalVariables import *
 
 # from attributes.queen_injects import inject
 
@@ -22,10 +21,6 @@ class AreologyBot(sc2.BotAI):
     def __init__(self):
         # list of actions we do at each step
         self.actions = []
-        # set of things that come from a larva
-        self.from_larva = {UnitID.DRONE, UnitID.OVERLORD, UnitID.ZERGLING, UnitID.ROACH}
-        # set of things that come from a drone
-        self.from_drone = {UnitID.HATCHERY, UnitID.SPAWNINGPOOL, UnitID.EXTRACTOR, UnitID.ROACHWARREN, UnitID.EVOLUTIONCHAMBER, UnitID.SPIRE}
         # buildorder
         self.buildorder = [
             UnitID.DRONE,       # 13/14
@@ -59,55 +54,104 @@ class AreologyBot(sc2.BotAI):
             UnitID.DRONE,       # 31
             UnitID.DRONE,       # 32
             UnitID.OVERLORD,    # 32
-            "BUILD ORDER FINISHED",
+            "ALLIN PHASE",
+            "MACRO PHASE"
         ]
         # current step of the buildorder
         self.buildorder_step = 0
         # expansion we need to clear next, changed in 'send_idle_army'
         self.army_target = None
-        # generator we need to cycle through expansions, created in 'send_idle_army'
+        # generator we need to cycle through expansions, created in 'send_units'
         self.clear_map = None
-        # unit groups, created in 'initialize_unitgroups'
-        self.drones = self.larvae = self.queens = self.army = None
+
+        """""""""""
+        initializeGlobalVariables()
+        """""""""""
+        # Building Variables
+        self.hatcheries = self.lairs = self.hives = None
+        self.extractors = self.spawning_pools = self.evolution_chambers = self.spine_crawlers = self.spore_crawlers = self.roach_warrens = self.baneling_nests = None
+        self.hydralisk_dens = self.lurker_dens = self.infestation_pits = self.spires = self.ultra_caverns = self.greater_spires = None
+        self.lair_finished = self.hive_finished = self.spawning_pool_finished = self.roach_warren_finished = self.baneling_nest_finished = False
+        self.hydralisk_den_finished = self.lurker_den_finished = self.infestation_pit_finished = self.spire_finished = self.ultra_cavern_finished = self.greater_spire_finished = False
+        # Unit Variables
+        self.larvae = self.drones = self.queens = self.zerglings = self.banelings = self.roaches = self.ravagers = self.hydralisks = self.lurkers = self.infestors = self.infested_terrans = None
+        self.swarm_hosts = self.locusts = self.ultralisks = self.overlords = self.overseers = self.changelings = self.mutalisks = self.corruptors = self.vipers = self.brood_lords = self.broodlings = None
+        # Misc. Variables
+        self.from_larva = self.from_drone = None
+        self.armyUnits = self.droneSupply = self.armySupply = None
+
+        """""""""""
+        production
+        """""""""""
+        self.pauseDroneProduction = []
+        self.pauseQueenProduction = []
+        self.pauseArmyProduction = []
 
     async def on_step(self, iteration):
-        # create selections one time for the whole frame
-        my_vars.initialize_unit_groups(self)
-        my_vars.initialize_units_types(self)
+        # reinitialize production enablers every step
+        self.enableDroneProduction = [True]
+        self.enableQueenProduction = [True]
+        self.enableArmyProduction = [True]
+        # initialize global variables
+        self.initializeGlobalVariables()
 
+        # basic macro
+        await self.genericMacro()
         # things to only do at the start of the game
         if iteration == 0:
             await self.chat_send("(glhf)")
-            await drone_attributes.split_workers(self)
+            await UnitDrone.splitWorkers(self)
 
-        # initialize build order
-        await build_order.do_buildorder(self)
-
-        drone_attributes.fill_extractors(self)
-        await queen_attributes.do_inject(self)
-        await self.distribute_workers()
-
-        # 2 base roach allin
-        if self.buildorder[self.buildorder_step] == "BUILD ORDER FINISHED":
-            train_units.train_overlords(self)
-            train_units.train_queens(self)
-            train_units.train_army(self)
-
-            if (self.time / 60 >= 5):
-                attack_force.send_units(self)
-                attack_force.control_units(self)
-                # self.buildorder_step == "ROACH ALLIN FINISHED"
-
-        # full on macro
-        if self.buildorder[self.buildorder_step] == "ROACH ALLIN FINISHED":
-            train_units.train_overlords(self)
-            train_units.train_drones(self)
-            train_units.train_queens(self)
-            train_units.train_army(self)
-
-        # initialize post-build order phase 2 (macro)
+        if not self.buildorder[self.buildorder_step] == "ALLIN PHASE" and not self.buildorder[self.buildorder_step] == "MACRO PHASE": await self.buildOrderPhase()
+        if self.buildorder[self.buildorder_step] == "ALLIN PHASE": await self.allinPhase()
+        if self.buildorder[self.buildorder_step] == "MACRO PHASE": await self.macroPhase()
 
         # do list of actions of the current step
         await self.do_actions(self.actions)
         # empty list to be ready for new actions in the next frame
         self.actions = []
+
+    """""""""
+    Helper Methods...
+    """""""""
+    def initializeGlobalVariables(self):
+        GlobalVariables.buildingVariables(self)
+        GlobalVariables.unitVariables(self)
+        GlobalVariables.miscVariables(self)
+
+    async def genericMacro(self):
+        await UnitDrone.fillExtractors(self)
+        await UnitQueen.doQueenInjects(self)
+        await self.distribute_workers()
+
+    async def buildOrderPhase(self):
+        await build_order.do_buildorder(self)
+        # spawning pool and roach warren are built during the build order phase
+        await Building.buildSpawningPool(self)
+        await Building.buildRoachWarren(self)
+        # metabolic boost is researched during the build order phase
+
+    async def allinPhase(self):
+        await TrainUnit.trainOverlords(self)
+        await TrainUnit.trainQueens(self)
+        await TrainUnit.trainArmy(self)
+        # start sending units to attack at 4:00
+        await UnitArmy.twoBaseAttack(self)
+
+    async def macroPhase(self):
+        await Building.upgradeToHive(self)
+        await Building.buildInfestationPit(self)
+        await Building.upgradeToLair(self)
+        await Building.buildHydraliskDen(self)
+        await Building.buildEvolutionChambers(self)
+        await Building.buildHatcheries(self)
+        await Building.buildExtractors(self)
+
+        await TrainUnit.trainOverlords(self)
+        await TrainUnit.trainDrones(self)
+        await TrainUnit.trainQueens(self)
+        await TrainUnit.trainArmy(self)
+
+        await UnitArmy.sendUnitsToDefend(self)
+        await UnitArmy.sendUnitsToAttack(self)
+        await UnitArmy.microUnits(self)

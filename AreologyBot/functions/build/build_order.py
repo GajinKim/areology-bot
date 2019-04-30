@@ -10,7 +10,7 @@ class build_order:
             return
         current_step = self.buildorder[self.buildorder_step]
         # do nothing if we are done already or dont have enough resources for current step of build order
-        if current_step == "BUILD ORDER FINISHED" or not self.can_afford(current_step):
+        if current_step == "ALLIN PHASE" or current_step == "MACRO PHASE" or not self.can_afford(current_step):
             return
         # check if current step needs larva
         if current_step in self.from_larva and self.larvae:
@@ -18,32 +18,22 @@ class build_order:
             print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name} ")
             self.buildorder_step += 1
         # check if current step needs drone
-        elif current_step in self.from_drone:
+        elif current_step == UnitID.EXTRACTOR or current_step == UnitID.HATCHERY:
             if current_step == UnitID.EXTRACTOR:
                 # get geysers that dont have extractor on them
-                geysers = self.state.vespene_geyser.filter(
-                    lambda g: all(g.position != e.position for e in self.units(UnitID.EXTRACTOR))
-                )
+                geysers = self.state.vespene_geyser.filter(lambda g: all(g.position != e.position for e in self.units(UnitID.EXTRACTOR)))
                 position = geysers.closest_to(self.start_location)
-            elif current_step == UnitID.HATCHERY:
+            if current_step == UnitID.HATCHERY:
                 position = await self.get_next_expansion()
-            else:
-                if current_step == UnitID.ROACHWARREN:
-                    # check tech requirement
-                    if not self.units(UnitID.SPAWNINGPOOL).ready:
-                        return
-                # pick position towards ramp to avoid building between hatchery and resources
-                buildings_around = self.units(UnitID.HATCHERY).first.position.towards(self.main_base_ramp.depot_in_middle, 7)
-                position = await self.find_placement(building=current_step, near=buildings_around, placement_step=4)
-            # got building position, pick worker that will get there the fastest
+            # closest worker
             worker = self.workers.closest_to(position)
+            # construct building at position
             self.actions.append(worker.build(current_step, position))
-            # use expand now function when building a new hatchery
             print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
             self.buildorder_step += 1
         elif current_step == UnitID.QUEEN:
             # tech requirement check
-            if not self.units(UnitID.SPAWNINGPOOL).ready:
+            if not self.spawning_pool_finished:
                 return
             hatch = self.units(UnitID.HATCHERY).first
             self.actions.append(hatch.train(UnitID.QUEEN))
@@ -51,7 +41,7 @@ class build_order:
             self.buildorder_step += 1
         elif current_step == AbilID.RESEARCH_ZERGLINGMETABOLICBOOST:
             # tech requirement check
-            if not self.units(UnitID.SPAWNINGPOOL).ready:
+            if not self.spawning_pool_finished:
                 return
             pool = self.units(UnitID.SPAWNINGPOOL).first
             self.actions.append(pool(AbilID.RESEARCH_ZERGLINGMETABOLICBOOST))

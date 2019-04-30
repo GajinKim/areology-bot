@@ -2,8 +2,8 @@ import sc2
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.ids.ability_id import AbilityId as AbilID
 
-class queen_attributes:
-    async def do_inject(self):
+class UnitQueen:
+    async def doQueenInjects(self):
         if not self.queens:
             return
         for queen in self.queens.idle:
