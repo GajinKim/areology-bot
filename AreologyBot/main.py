@@ -10,6 +10,7 @@ from functions.build.build_order import *
 from functions.build.Building import *
 from functions.train.TrainUnit import *
 from functions.unit.UnitDrone import *
+from functions.unit.UnitOverlord import *
 from functions.unit.UnitQueen import *
 from functions.unit.UnitArmy import *
 
@@ -97,6 +98,7 @@ class AreologyBot(sc2.BotAI):
 
         # basic macro
         await self.genericMacro()
+        await self.genericMicro()
         # things to only do at the start of the game
         if iteration == 0:
             await self.chat_send("(glhf)")
@@ -124,7 +126,12 @@ class AreologyBot(sc2.BotAI):
         await UnitQueen.doQueenInjects(self)
         await self.distribute_workers()
 
+    async def genericMicro(self):
+        await UnitOverlord.tacticalRetreat(self)
+
     async def buildOrderPhase(self):
+        await UnitOverlord.sendScout(self)
+
         await build_order.do_buildorder(self)
         # spawning pool and roach warren are built during the build order phase
         await Building.buildSpawningPool(self)
