@@ -26,6 +26,7 @@
  <li><p>creep spread</p></li>
  <li><p>queen injeccts</p></li>
  <li><p>basic unit micro</p></li>
+ <li><p>set up laddermanager</p></li>
 </ul>
 <hr>
   <b>Side Notes</b>
