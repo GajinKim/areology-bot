@@ -2,12 +2,12 @@
 <html>
 
 <h1>AreologyBot</h1>
-<p>This is StarCraft 2 Zerg AI that does an aggressive 2 base roach timing before transitioning into standard macro play</p><br>
+<p>This is StarCraft 2 Zerg AI that does an aggressive 2 base roach timing before transitioning into standard macro play</p>
 <p>AI coded in Python 3 using the <a href="https://github.com/Dentosal/python-sc2" target="_blank">python-sc2 framework</a>
 <hr>
-  <b>Things to implement <em>Priority</em><b>
+  <h4><b>Things to implement <em>Priority</em></b></h4>
 <ul>
-  <li><p>early game <s>overlord</s> and drone scouting <em>overlord scouting works for now, update later</em></p>/li>
+  <li><p>early game <strike>overlord</strike> and drone scouting <em>overlord scouting works for now, update later</em></p></li>
   <li><p>anti-cheese measures (basic response - spines and lings)</p></li>
 </ul>
 <br>
@@ -36,4 +36,4 @@
  <li><p>Began March 7 2019</p></li>
 </ul>
 Intersted? Join the StarCraft 2 <a href="https://discordapp.com/invite/Emm5Ztz" target="_blank">Discord Server!</a>
-</head>
+</html>
