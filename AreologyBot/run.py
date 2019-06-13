@@ -20,9 +20,9 @@ if __name__ == "__main__":
 
         # Computer(race, difficulty, build)
         """
-        race:       [0] Random  | [1] Terran  | [2] Protoss | [3] Zerg
-        difficulty: [0] Easy    | [1] Medium  | [2] Hard    | [3] V Hard   | [4] Cheat Vision | [5] Cheat Money | [6] Cheat Insane
-        build:      [0] Random  | [1] Rush    | [2] Timing  | [3] Power    | [4] Macro        | [5] Air
+        race:       [0] Random  | [1] Terran  | [2] Protoss | [3] Zerg     |
+        difficulty: [0] Easy    | [1] Medium  | [2] Hard    | [3] V Hard   | [4] Cheat Vision | [5] Cheat Money | [6] Cheat Insane  |
+        build:      [0] Random  | [1] Rush    | [2] Timing  | [3] Power    | [4] Macro        | [5] Air         |
         """
         race = [Race.Random, Race.Terran, Race.Protoss, Race.Zerg]
         difficulty = [Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.VeryHard, Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane]
