@@ -75,7 +75,7 @@ class AbilityData:
         self._game_data = game_data
         self._proto = proto
 
-        assert self.id != 0
+        # assert self.id != 0
 
     def __repr__(self) -> str:
         return f"AbilityData(name={self._proto.button_name})"
