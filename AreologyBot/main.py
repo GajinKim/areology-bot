@@ -6,7 +6,7 @@ from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import *
 
 import functions
-from functions.build.build_order import *
+from functions.build.BuildOrder import *
 from functions.build.Building import *
 from functions.train.TrainUnit import *
 from functions.unit.UnitDrone import *
@@ -93,16 +93,20 @@ class AreologyBot(sc2.BotAI):
         self.enableDroneProduction = [True]
         self.enableQueenProduction = [True]
         self.enableArmyProduction = [True]
+
         # initialize global variables
         self.initializeGlobalVariables()
 
         # basic macro
         await self.genericMacro()
         await self.genericMicro()
+
         # things to only do at the start of the game
         if iteration == 0:
-            await self.chat_send("(glhf)")
             await UnitDrone.splitWorkers(self)
+            await UnitDrone.sendScout(self)
+            await UnitOverlord.sendScout(self)
+            await self.chat_send("(glhf)")
 
         if not self.buildorder[self.buildorder_step] == "ALLIN PHASE" and not self.buildorder[self.buildorder_step] == "MACRO PHASE": await self.buildOrderPhase()
         if self.buildorder[self.buildorder_step] == "ALLIN PHASE": await self.allinPhase()
@@ -114,7 +118,7 @@ class AreologyBot(sc2.BotAI):
         self.actions = []
 
     """""""""
-    Helper Methods...
+    Helper Methods
     """""""""
     def initializeGlobalVariables(self):
         GlobalVariables.buildingVariables(self)
@@ -127,16 +131,14 @@ class AreologyBot(sc2.BotAI):
         await self.distribute_workers()
 
     async def genericMicro(self):
-        await UnitOverlord.tacticalRetreat(self)
+        await UnitOverlord.retreatScout(self)
+        await UnitDrone.retreatScout(self)
 
     async def buildOrderPhase(self):
-        await UnitOverlord.sendScout(self)
-
-        await build_order.do_buildorder(self)
-        # spawning pool and roach warren are built during the build order phase
+        # spawning pool, roach warren, and ling speed are completed in build order phase
+        await BuildOrder.startBuild(self)
         await Building.buildSpawningPool(self)
         await Building.buildRoachWarren(self)
-        # metabolic boost is researched during the build order phase
 
     async def allinPhase(self):
         await TrainUnit.trainOverlords(self)

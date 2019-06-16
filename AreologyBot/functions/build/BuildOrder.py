@@ -3,8 +3,8 @@ from sc2.ids.ability_id import AbilityId as AbilID
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import Point2
 
-class build_order:
-    async def do_buildorder(self):
+class BuildOrder:
+    async def startBuild(self):
         # only try to build something if you have 25 minerals, otherwise you dont have enough anyway
         if self.minerals < 25:
             return
