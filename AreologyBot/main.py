@@ -16,8 +16,12 @@ from functions.unit.UnitArmy import *
 
 from GlobalVariables import *
 
-# from attributes.queen_injects import inject
-
+"""
+TODO LIST:
+- Better optimize drone and overlord scouting
+- Add early game defense measures from information gathered from scouting
+-
+"""
 class AreologyBot(sc2.BotAI):
     def __init__(self):
         # list of actions we do at each step
@@ -117,9 +121,9 @@ class AreologyBot(sc2.BotAI):
         # empty list to be ready for new actions in the next frame
         self.actions = []
 
-    """""""""
+    """
     Helper Methods
-    """""""""
+    """
     def initializeGlobalVariables(self):
         GlobalVariables.buildingVariables(self)
         GlobalVariables.unitVariables(self)
