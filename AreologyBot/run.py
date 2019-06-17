@@ -4,13 +4,6 @@ from sc2 import Race, Difficulty
 from sc2.player import Bot, Computer, Human
 from __init__ import run_ladder_game
 
-"""
-TODO LIST:
-- priority!
-    - Fix drone scouting, works for now, but it's really sloppy (i.e. i'm taking advantage of code that shouldn't exist, UnitDrone.retreat(self))
-        - currently exists in main method and unitdrone class
-"""
-
 # Load bot
 from main import AreologyBot
 my_bot = sc2.player.Bot(Race.Zerg, AreologyBot())
