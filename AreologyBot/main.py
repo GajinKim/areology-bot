@@ -92,25 +92,20 @@ class AreologyBot(sc2.BotAI):
         self.pauseQueenProduction = []
         self.pauseArmyProduction = []
 
+        """""""""""
+        scouting
+        """""""""""
+        self.scouting_drone = {}
+        self.scouting_drone_tag = None
+
     async def on_step(self, iteration):
-        # reinitialize production enablers every step
-        self.enableDroneProduction = [True]
-        self.enableQueenProduction = [True]
-        self.enableArmyProduction = [True]
+        # group of functions that will be modified throughout duration of the game
+        await self.setup()
 
-        # initialize global variables
-        self.initializeGlobalVariables()
-
-        # basic macro
-        await self.genericMacro()
-        await self.genericMicro()
-
-        # things to only do at the start of the game
+        # things to only do ONCE at the start of the game
         if iteration == 0:
-            await UnitDrone.splitWorkers(self)
-            await UnitDrone.sendScout(self)
-            await UnitOverlord.sendScout(self)
-            await self.chat_send("(glhf)")
+            await self.onStartTasks()
+        await UnitDrone.scout(self)
 
         if not self.buildorder[self.buildorder_step] == "ALLIN PHASE" and not self.buildorder[self.buildorder_step] == "MACRO PHASE": await self.buildOrderPhase()
         if self.buildorder[self.buildorder_step] == "ALLIN PHASE": await self.allinPhase()
@@ -129,6 +124,15 @@ class AreologyBot(sc2.BotAI):
         GlobalVariables.unitVariables(self)
         GlobalVariables.miscVariables(self)
 
+    async def setup(self):
+        # things that need to be reinitialized every step
+        self.enableDroneProduction = [True]
+        self.enableQueenProduction = [True]
+        self.enableArmyProduction = [True]
+        self.initializeGlobalVariables()
+        self.genericMacro()
+        self.genericMicro()
+
     async def genericMacro(self):
         await UnitDrone.fillExtractors(self)
         await UnitQueen.doQueenInjects(self)
@@ -136,7 +140,14 @@ class AreologyBot(sc2.BotAI):
 
     async def genericMicro(self):
         await UnitOverlord.retreatScout(self)
-        await UnitDrone.retreatScout(self)
+
+    async def onStartTasks(self):
+        for drone in self.drones:
+            self.scouting_drone[drone.tag] = self.drones[0]
+            self.scouting_drone_tag = drone.tag
+        await UnitDrone.splitWorkers(self)
+        await UnitOverlord.sendScout(self)
+        await self.chat_send("(glhf)")
 
     async def buildOrderPhase(self):
         # spawning pool, roach warren, and ling speed are completed in build order phase
