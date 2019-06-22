@@ -2,7 +2,7 @@ import random
 import sc2, sys
 from sc2 import Race, Difficulty
 from sc2.player import Bot, Computer, Human
-from __init__ import run_ladder_game
+from __init__ import *
 
 # Load bot
 from main import AreologyBot
@@ -29,4 +29,4 @@ if __name__ == "__main__":
         enemy_bot =     sc2.player.Computer(race[0], difficulty[6], build[0])   # Computer(race, difficulty, build)
 
         sc2.run_game(sc2.maps.get(random_map), [my_bot, enemy_bot],
-        realtime = True, save_replay_as="AreologyBotReplay.SC2Replay")
+        realtime = False, save_replay_as="AreologyBotReplay.SC2Replay")
