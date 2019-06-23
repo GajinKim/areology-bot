@@ -112,6 +112,7 @@ class AreologyBot(sc2.BotAI):
             await UnitOverlord.sendScout(self)
             await self.chat_send("(glhf)")
 
+        # if we're not not in our allin phase or macro phase we must be in our build order phase
         if not self.buildorder[self.buildorder_step] == "ALLIN PHASE" and not self.buildorder[self.buildorder_step] == "MACRO PHASE": await self.buildOrderPhase()
         if self.buildorder[self.buildorder_step] == "ALLIN PHASE": await self.allinPhase()
         if self.buildorder[self.buildorder_step] == "MACRO PHASE": await self.macroPhase()
