@@ -22,3 +22,17 @@ class BuildStep:
         self.actions.append(pool(AbilID.RESEARCH_ZERGLINGMETABOLICBOOST))
         print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
         self.buildorder_step += 1
+
+    async def stepExtractor(self):
+        if current_step == UnitID.EXTRACTOR:
+            # get geysers that dont have extractor on them
+            geysers = self.state.vespene_geyser.filter(lambda g: all(g.position != e.position for e in self.units(UnitID.EXTRACTOR)))
+            position = geysers.closest_to(self.start_location)
+        if current_step == UnitID.HATCHERY:
+            position = await self.get_next_expansion()
+        # closest worker
+        worker = self.workers.closest_to(position)
+        # construct building at position
+        self.actions.append(worker.build(current_step, position))
+        print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
+        self.buildorder_step += 1
