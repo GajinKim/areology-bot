@@ -6,7 +6,7 @@ from sc2.ids.ability_id import AbilityId as AbilID
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import Point2
 
-class Building:
+class BuildBuilding:
     async def buildSpawningPool(self):
         # spawning pool costs more than 200 minerals
         if self.minerals < 200:

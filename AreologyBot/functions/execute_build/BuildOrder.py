@@ -4,7 +4,7 @@ from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import Point2
 
 import functions
-from functions.build_order.BuildStep import *
+from functions.execute_build.BuildStep import *
 
 class BuildOrder:
     async def executeBuild(self):

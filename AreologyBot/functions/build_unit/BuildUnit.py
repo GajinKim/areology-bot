@@ -1,8 +1,7 @@
 import sc2
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 
-class TrainUnit:
-
+class BuildUnit:
     async def trainDrones(self):
         # drones cost 50 minerals
         if self.minerals < 50 or not self.enableDroneProduction:

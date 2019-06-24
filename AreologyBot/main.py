@@ -6,13 +6,15 @@ from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import *
 
 import functions
-from functions.build_order.BuildOrder import BuildOrder
+from functions.build_building.BuildBuilding import BuildBuilding as BuildingMake
+from functions.build_unit.BuildUnit import BuildUnit as UnitMake
+
+from functions.execute_build.BuildOrder import BuildOrder
+
 from functions.my_army.MyArmy import *
-from functions.my_building.Building import *
 from functions.my_unit.MyDrone import *
 from functions.my_unit.MyOverlord import *
 from functions.my_unit.MyQueen import *
-from functions.train.TrainUnit import *
 
 from GlobalVariables import *
 
@@ -146,27 +148,27 @@ class AreologyBot(sc2.BotAI):
         await MyOverlord.retreatScout(self)
 
     async def allinPhase(self):
-        await TrainUnit.trainOverlords(self)
-        await TrainUnit.trainQueens(self)
-        await TrainUnit.trainArmy(self)
+        await UnitMake.trainOverlords(self)
+        await UnitMake.trainQueens(self)
+        await UnitMake.trainArmy(self)
         # start sending units to attack at 4:00
         await MyArmy.twoBaseAttack(self)
 
     async def macroPhase(self):
-        await Building.buildHatcheries(self)
-        await Building.upgradeToLair(self)
-        await Building.upgradeToHive(self)
-        await Building.buildExtractors(self)
-        await Building.buildEvolutionChambers(self)
-        await Building.buildSpawningPool(self)
-        await Building.buildRoachWarren(self)
-        await Building.buildHydraliskDen(self)
-        await Building.buildInfestationPit(self)
+        await BuildingMake.buildHatcheries(self)
+        await BuildingMake.upgradeToLair(self)
+        await BuildingMake.upgradeToHive(self)
+        await BuildingMake.buildExtractors(self)
+        await BuildingMake.buildEvolutionChambers(self)
+        await BuildingMake.buildSpawningPool(self)
+        await BuildingMake.buildRoachWarren(self)
+        await BuildingMake.buildHydraliskDen(self)
+        await BuildingMake.buildInfestationPit(self)
 
-        await TrainUnit.trainOverlords(self)
-        await TrainUnit.trainDrones(self)
-        await TrainUnit.trainQueens(self)
-        await TrainUnit.trainArmy(self)
+        await UnitMake.trainOverlords(self)
+        await UnitMake.trainDrones(self)
+        await UnitMake.trainQueens(self)
+        await UnitMake.trainArmy(self)
 
         await MyArmy.sendUnitsToDefend(self)
         await MyArmy.sendUnitsToAttack(self)
