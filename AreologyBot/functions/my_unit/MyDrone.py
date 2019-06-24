@@ -1,12 +1,12 @@
 import sc2
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 
-class UnitDrone:
-    async def sendEarlyGameScout(self):
+class MyDrone:
+    async def sendScout(self):
         scouting_drone = self.drones[0]
         self.actions.append(scouting_drone.attack(self.enemy_start_locations[0]))
 
-    async def retreatEarlyGameScout(self):
+    async def retreatScout(self):
         for drone in self.drones:
             damaged_drone = drone.health < 40
             if damaged_drone and self.time / 60 < 2:

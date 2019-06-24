@@ -6,13 +6,13 @@ from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import *
 
 import functions
-from functions.build.BuildOrder import *
-from functions.build.Building import *
+from functions.build_order.BuildOrder import BuildOrder
+from functions.my_army.MyArmy import *
+from functions.my_building.Building import *
+from functions.my_unit.MyDrone import *
+from functions.my_unit.MyOverlord import *
+from functions.my_unit.MyQueen import *
 from functions.train.TrainUnit import *
-from functions.unit.UnitDrone import *
-from functions.unit.UnitOverlord import *
-from functions.unit.UnitQueen import *
-from functions.unit.UnitArmy import *
 
 from GlobalVariables import *
 
@@ -62,7 +62,7 @@ class AreologyBot(sc2.BotAI):
             UnitID.OVERLORD,    # 32
             "ALLIN PHASE",
             "MACRO PHASE"
-        ]
+            ]
         # current step of the buildorder
         self.buildorder_step = 0
         # expansion we need to clear next, changed in 'send_idle_army'
@@ -89,27 +89,27 @@ class AreologyBot(sc2.BotAI):
         """""""""""
         production
         """""""""""
-        self.pauseDroneProduction = []
-        self.pauseQueenProduction = []
-        self.pauseArmyProduction = []
+        self.pauseDroneProduction   = []
+        self.pauseQueenProduction   = []
+        self.pauseArmyProduction    = []
 
     async def on_step(self, iteration):
         # reinitialize production enablers every step
-        self.enableDroneProduction = [True]
-        self.enableQueenProduction = [True]
-        self.enableArmyProduction = [True]
+        self.enableDroneProduction  = [True]
+        self.enableQueenProduction  = [True]
+        self.enableArmyProduction   = [True]
 
         # initialize global variables
         self.initializeGlobalVariables()
 
-        # basic macro
+        # basic mechanics (macro and micro)
         await self.genericMechanics()
 
         # things to only do at the start of the game
         if iteration == 0:
-            await UnitDrone.splitWorkers(self)
-            await UnitDrone.sendEarlyGameScout(self)
-            await UnitOverlord.sendScout(self)
+            await MyDrone.splitWorkers(self)
+            await MyDrone.sendScout(self)
+            await MyOverlord.sendScout(self)
             await self.chat_send("(glhf)")
 
         # if we're not not in our allin phase or macro phase we must be in our build order phase
@@ -132,40 +132,42 @@ class AreologyBot(sc2.BotAI):
 
     async def genericMechanics(self):
         # generic macro functions
-        await UnitDrone.fillExtractors(self)
-        await UnitQueen.doQueenInjects(self)
+        await MyDrone.fillExtractors(self)
+        await MyQueen.doQueenInjects(self)
         await self.distribute_workers()
         # generic micro functions
-        await UnitOverlord.retreatScout(self)
-        await UnitDrone.retreatEarlyGameScout(self)
 
     async def buildOrderPhase(self):
-        # spawning pool, roach warren, and ling speed are completed in build order phase
-        await BuildOrder.startBuild(self)
-        await Building.buildSpawningPool(self)
-        await Building.buildRoachWarren(self)
+        # execute build
+        await BuildOrder.executeBuild(self)
+
+        # build order phase micro functions
+        await MyDrone.retreatScout(self)
+        await MyOverlord.retreatScout(self)
 
     async def allinPhase(self):
         await TrainUnit.trainOverlords(self)
         await TrainUnit.trainQueens(self)
         await TrainUnit.trainArmy(self)
         # start sending units to attack at 4:00
-        await UnitArmy.twoBaseAttack(self)
+        await MyArmy.twoBaseAttack(self)
 
     async def macroPhase(self):
-        await Building.upgradeToHive(self)
-        await Building.buildInfestationPit(self)
-        await Building.upgradeToLair(self)
-        await Building.buildHydraliskDen(self)
-        await Building.buildEvolutionChambers(self)
         await Building.buildHatcheries(self)
+        await Building.upgradeToLair(self)
+        await Building.upgradeToHive(self)
         await Building.buildExtractors(self)
+        await Building.buildEvolutionChambers(self)
+        await Building.buildSpawningPool(self)
+        await Building.buildRoachWarren(self)
+        await Building.buildHydraliskDen(self)
+        await Building.buildInfestationPit(self)
 
         await TrainUnit.trainOverlords(self)
         await TrainUnit.trainDrones(self)
         await TrainUnit.trainQueens(self)
         await TrainUnit.trainArmy(self)
 
-        await UnitArmy.sendUnitsToDefend(self)
-        await UnitArmy.sendUnitsToAttack(self)
-        await UnitArmy.microUnits(self)
+        await MyArmy.sendUnitsToDefend(self)
+        await MyArmy.sendUnitsToAttack(self)
+        await MyArmy.microUnits(self)

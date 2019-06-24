@@ -6,7 +6,7 @@ from sc2.ids.ability_id import AbilityId as AbilID
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import Point2
 
-class UnitArmy:
+class MyArmy:
     async def sendUnitsToAttack(self):
         if self.supply_used < 190:
             return

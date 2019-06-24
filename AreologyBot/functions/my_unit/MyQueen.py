@@ -2,7 +2,7 @@ import sc2
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.ids.ability_id import AbilityId as AbilID
 
-class UnitQueen:
+class MyQueen:
     async def doQueenInjects(self):
         if not self.queens:
             return

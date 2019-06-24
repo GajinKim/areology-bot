@@ -1,7 +1,7 @@
 import sc2
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 
-class UnitOverlord:
+class MyOverlord:
     async def sendScout(self):
         scouting_overlord = self.overlords[0]
         self.actions.append(scouting_overlord.move(self.enemy_start_locations[0]))
