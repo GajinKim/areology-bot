@@ -21,8 +21,8 @@
   <p><b>Side Notes</b></p>
 <ul>
  <li>Currently testing against <a href="https://github.com/tweakimp/RoachRush" target="_blank">RoachRush Bot</a> to code early game ZvZ scouting and defense</li>
- <li><p>Beats Elite AI 3 ~50% of the time at the moment. Most loses resulting from early game aggro</p></li>
- <li><p>AreologyBotLEGACY is outdated version from back when I tinkering with the python-sc2 API.<br><em>This AI might not be compatible with the game's current version</em></p></li>
+ <li><p>Beats Elite AI ~50% of the time at the moment. Most loses resulting from early game aggro</p></li>
+ <li><p>AreologyBotLEGACY is outdated version from back when I was first learning the python-sc2 API.<br><em>This AI might not be compatible with the game's current version</em></p></li>
  <li><p>Began March 7 2019</p></li>
 </ul>
 <p>Intersted? Join the StarCraft 2 <a href="https://discordapp.com/invite/Emm5Ztz" target="_blank">Discord Server!</a></p>
