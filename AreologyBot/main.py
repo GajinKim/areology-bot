@@ -20,10 +20,11 @@ from GlobalVariables import *
 
 """
 TODO LIST:
-- Better optimize drone and overlord scouting
+- Better optimize drone and overlord scouting patterns
     - currently taking advantage of methods that can cause issues later on and should therefore be removed
 - Add early game defense measures from information gathered from scouting
 - Refactor this class
+- Implement Queen creep spread (possibly use legacy code)
 - Fix the attack method, scouting allowed me to realize that there are issues
 """
 class AreologyBot(sc2.BotAI):
