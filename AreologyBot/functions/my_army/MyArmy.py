@@ -101,31 +101,12 @@ class MyArmy:
         if self.time / 60 < 4.25:
             return
         if self.time / 60 >= 4.25:
-            # we can only fight ground units and we dont want to fight larvae
-            ground_enemies = self.known_enemy_units.filter(lambda unit: not unit.is_flying and unit.type_id != UnitID.LARVA)
-            # we dont see anything, go to enemy start location (only works on 2 player maps)
-            if not ground_enemies:
-                # if we didnt start to clear the map already
-                if not self.clear_map:
-                    # start with enemy starting location, then cycle through all expansions
-                    self.clear_map = itertools.cycle(
-                        [self.enemy_start_locations[0]] + list(self.expansion_locations.keys())
-                    )
-                    self.army_target = next(self.clear_map)
-                # we can see the expansion but there seems to be nothing, get next
-                if self.units.closer_than(7, self.army_target):
-                    self.army_target = next(self.clear_map)
-                # send all units
-                for unit in self.armyUnits:
-                    self.actions.append(unit.move(self.army_target))
-            else:
-                # select only idle units, the other units have tasks already
-                army_idle = self.armyUnits.idle
-                # send all units
-                for unit in army_idle:
-                    # attack closest unit
-                    closest_enemy = ground_enemies.closest_to(unit)
-                    self.actions.append(unit.attack(closest_enemy))
+            # gather all idle army units
+            army_idle = self.armyUnits.idle
+            for unit in army_idle:
+                # issue an attack command to the enemy's main
+                self.actions.append(unit.attack(self.enemy_start_locations[0]))
+
         # marks the end of the allin phase
         if self.time / 60 >= 5.5:
             await self.chat_send("(probe) starting the macro phase! (probe)")
