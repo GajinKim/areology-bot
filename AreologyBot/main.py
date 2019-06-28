@@ -9,7 +9,7 @@ import functions
 from functions.Unit import *
 
 from functions.build_building.BuildBuilding import BuildBuilding as BuildingMake
-from functions.build_unit.BuildUnit import BuildUnit as UnitMake
+from functions.build_unit.BuildUnit import BuildUnit
 
 from functions.execute_build.BuildOrder import BuildOrder
 
@@ -22,6 +22,7 @@ from GlobalVariables import *
 
 """
 TODO LIST:
+- redo method names (should be lower_case_spaced)
 - Better optimize drone and overlord scouting patterns
     - currently taking advantage of methods that can cause issues later on and should therefore be removed
 - Add early game defense measures from information gathered from scouting
@@ -153,9 +154,9 @@ class AreologyBot(sc2.BotAI):
         await MyOverlord.retreatScout(self)
 
     async def allinPhase(self):
-        await UnitMake.trainOverlords(self)
-        await UnitMake.trainQueens(self)
-        await UnitMake.trainArmy(self)
+        await BuildUnit.trainOverlords(self)
+        await BuildUnit.trainQueens(self)
+        await BuildUnit.trainArmy(self)
         # start sending units to attack at 4:00
         await MyArmy.twoBaseAttack(self)
 
@@ -170,10 +171,10 @@ class AreologyBot(sc2.BotAI):
         await BuildingMake.buildHydraliskDen(self)
         await BuildingMake.buildInfestationPit(self)
 
-        await UnitMake.trainOverlords(self)
-        await UnitMake.trainDrones(self)
-        await UnitMake.trainQueens(self)
-        await UnitMake.trainArmy(self)
+        await BuildUnit.trainOverlords(self)
+        await BuildUnit.trainDrones(self)
+        await BuildUnit.trainQueens(self)
+        await BuildUnit.trainArmy(self)
 
         await MyArmy.sendUnitsToDefend(self)
         await MyArmy.sendUnitsToAttack(self)
