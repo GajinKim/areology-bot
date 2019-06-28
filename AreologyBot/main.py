@@ -159,7 +159,6 @@ class AreologyBot(sc2.BotAI):
         # start sending units to attack at 4:00
         await MyArmy.twoBaseAttack(self)
 
-
     async def macroPhase(self):
         await BuildingMake.buildHatcheries(self)
         await BuildingMake.upgradeToLair(self)
