@@ -128,7 +128,7 @@ class AreologyBot(sc2.BotAI):
         await Unit.fill_extractors(self)
         await Unit.inject(self)
         await Unit.micro_units(self)
-        
+
         await self.distribute_workers()
 
     async def buildOrderPhase(self):
@@ -164,4 +164,4 @@ class AreologyBot(sc2.BotAI):
 
         await MyArmy.sendUnitsToDefend(self)
         await MyArmy.sendUnitsToAttack(self)
-        await MyArmy.microUnits(self)
+        await Unit.micro_units(self)
