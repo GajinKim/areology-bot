@@ -7,7 +7,7 @@ from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import Point2
 
 class BuildBuilding:
-    async def buildSpawningPool(self):
+    async def build_spawning_pool(self):
         # spawning pool costs more than 200 minerals
         if self.minerals < 200:
             return
@@ -25,7 +25,7 @@ class BuildBuilding:
             self.pauseArmyProduction.append(True)
             self.pauseDroneProduction.append(False)
 
-    async def buildRoachWarren(self):
+    async def build_roach_warren(self):
         # need at least 150 minerals to build a roach warren
         if self.minerals < 150:
             return
@@ -43,7 +43,7 @@ class BuildBuilding:
             self.pauseArmyProduction.append(True)
             self.pauseDroneProduction.append(False)
 
-    async def upgradeToLair(self):
+    async def upgrade_to_lair(self):
         # need at least 150 minerals and 100 vespene to morph lair
         if self.minerals < 150 or self.vespene < 100 or self.hatcheries < 3:
             return
@@ -59,7 +59,7 @@ class BuildBuilding:
             self.pauseQueenProduction.append(False)
             self.pauseArmyProduction.append(False)
 
-    async def upgradeToHive(self):
+    async def upgrade_to_hive(self):
         # need at least 200 minerals and 150 vespene to morph hive
         if self.minerals < 200 or self.vespene < 150 or self.hatcheries < 4:
             return
@@ -75,7 +75,7 @@ class BuildBuilding:
             self.pauseQueenProduction.append(True)
             self.pauseArmyProduction.append(True)
 
-    async def buildHatcheries(self):
+    async def build_hatchery(self):
         # need at least 300 minerals to build a hatchery
         if self.minerals < 300:
             return
@@ -85,7 +85,7 @@ class BuildBuilding:
             await self.expand_now()
             self.pauseArmyProduction.append(True)
 
-    async def buildExtractors(self):
+    async def build_extractor(self):
         # need at least 25 minerals to build an extractor
         if self.minerals < 25:
             return
@@ -94,33 +94,33 @@ class BuildBuilding:
                 worker = self.select_build_worker(target_vespene)
                 self.actions.append(worker.build(UnitID.EXTRACTOR, target_vespene))
 
-    async def buildEvolutionChambers(self):
-        # need at least 75 minerals to build an evo chamber
-        if self.minerals < 75:
+    async def build_evolution_chamber(self):
+        # need at least 150 minerals to build a pair of evo chambers
+        if self.minerals < 150:
             return
-        if self.evolution_chambers < 2 and self.hatcheries + self.lairs >= 3:
+        if self.evolution_chambers.amount < 2 and not self.evolution_chambers.already_pending and self.hatcheries.amount + self.lairs.amount >= 3:
             self.pauseArmyProduction.append(False)
             position = self.units(UnitID.HATCHERY).ready.first.position.towards(self.game_info.map_center, 7)
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.EVOLUTIONCHAMBER, position))
             self.pauseArmyProduction.append(True)
 
-    async def buildHydraliskDen(self):
+    async def build_hydralisk_den(self):
         # need at least 100 minerals and 100 vespene to build a hydra den
         if self.minerals < 100 or self.vespene < 100:
             return
-        if self.hydralisk_dens == 0 and self.lair_finished:
+        if self.hydralisk_dens.amount  == 0 and not self.hydralisk_dens.already_pending and self.lair_finished:
             self.pauseArmyProduction.append(False)
             position = self.units(UnitID.HATCHERY).ready.first.position.towards(self.game_info.map_center, 7)
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.HYDRALISKDEN, position))
             self.pauseArmyProduction.append(True)
 
-    async def buildInfestationPit(self):
+    async def build_infestation_pit(self):
         # need at least 100 minerals and 100 vespene to build a infestation pit
         if self.minerals < 100 or self.vespene < 100:
             return
-        if self.infestation_pits == 0 and self.lair_finished and self.hydralisk_den_finished:
+        if self.infestation_pits.amount and not self.infestation_pits.already_pending and self.lair_finished and self.hydralisk_den_finished:
             self.pauseArmyProduction.append(False)
             position = self.units(UnitID.HATCHERY).ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
             worker = self.workers.closest_to(position)

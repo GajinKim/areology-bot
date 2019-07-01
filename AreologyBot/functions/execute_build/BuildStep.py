@@ -3,14 +3,14 @@ from sc2.ids.ability_id import AbilityId as AbilID
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 
 class BuildStep:
-    async def stepLarvaUnit(self):
+    async def step_larva_unit(self):
         current_step = self.buildorder[self.buildorder_step]
         self.actions.append(self.larvae.first.train(current_step))
         # print console log
         print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name} ")
         self.buildorder_step += 1
 
-    async def stepQueen(self):
+    async def step_queen(self):
         current_step = self.buildorder[self.buildorder_step]
         # tech requirement check
         if not self.spawning_pool_finished:
@@ -21,7 +21,7 @@ class BuildStep:
         print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
         self.buildorder_step += 1
 
-    async def stepLingSpeed(self):
+    async def step_ling_speed(self):
         current_step = self.buildorder[self.buildorder_step]
         # tech requirement check
         if not self.spawning_pool_finished:
@@ -32,7 +32,7 @@ class BuildStep:
         print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
         self.buildorder_step += 1
 
-    async def stepExtractor(self):
+    async def step_extractor(self):
         current_step = self.buildorder[self.buildorder_step]
         # closest available geyser
         geysers = self.state.vespene_geyser.filter(lambda g: all(g.position != e.position for e in self.units(UnitID.EXTRACTOR)))
@@ -44,7 +44,7 @@ class BuildStep:
         print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
         self.buildorder_step += 1
 
-    async def stepSpawningPool(self):
+    async def step_spawning_pool(self):
         current_step = self.buildorder[self.buildorder_step]
         # available building positions
         buildings_around = self.units(UnitID.HATCHERY).first.position.towards(self.main_base_ramp.depot_in_middle, 7)
@@ -56,7 +56,7 @@ class BuildStep:
         print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
         self.buildorder_step += 1
 
-    async def stepRoachWarren(self):
+    async def step_roach_warren(self):
         current_step = self.buildorder[self.buildorder_step]
         # available building positions
         buildings_around = self.units(UnitID.HATCHERY).first.position.towards(self.main_base_ramp.depot_in_middle, 7)
@@ -68,7 +68,7 @@ class BuildStep:
         print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
         self.buildorder_step += 1
 
-    async def stepHatchery(self):
+    async def step_hatchery(self):
         current_step = self.buildorder[self.buildorder_step]
         # closest expansion location
         position = await self.get_next_expansion()

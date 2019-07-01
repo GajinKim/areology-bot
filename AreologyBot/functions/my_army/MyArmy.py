@@ -30,7 +30,7 @@ class MyArmy:
                     self.actions.append(unit.move(self.army_target))
             else:
                 # select only idle units, the other units have tasks already
-                army_idle = self.armyUnits.idle
+                army_idle = self.army_units.idle
                 # send all units
                 for unit in army_idle:
                     # attack closest unit
@@ -43,7 +43,7 @@ class MyArmy:
         if self.supply_used < 190:
             enemies = self.known_enemy_units
             # select only idle units, the other units have tasks already
-            army_idle = self.armyUnits.idle and self.queens.idle
+            army_idle = self.army_units.idle and self.queens.idle
             # send all units to defend
             for unit in army_idle:
                 for hatch in self.townhalls:
@@ -59,7 +59,7 @@ class MyArmy:
         # no need to do anything here if we dont see anything
         if not ground_enemies:
             return
-        army = self.units.filter(lambda unit: unit.type_id in self.armyUnits)
+        army = self.units.filter(lambda unit: unit.type_id in self.army_units)
         # create selection of dangerous enemy units.
         # bunker and uprooted spine dont have weapon, but should be in that selection
         # also add spinecrawler and cannon if they are not ready yet and have no weapon

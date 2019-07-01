@@ -16,19 +16,21 @@ class BuildOrder:
         # check that we're in the correct phase and we have enough resources
         if current_step == "ALLIN PHASE" or current_step == "MACRO PHASE" or not self.can_afford(current_step):
             return
+
         # steps that consume larva (drone, zergling, overlord)
         if current_step in self.from_larva and self.larvae:
-            await BuildStep.stepLarvaUnit(self)
+            await BuildStep.step_larva_unit(self)
+
         # steps that don't consume larva
         if current_step == UnitID.EXTRACTOR:
-            await BuildStep.stepExtractor(self)
+            await BuildStep.step_extractor(self)
         if current_step == UnitID.HATCHERY:
-            await BuildStep.stepHatchery(self)
+            await BuildStep.step_hatchery(self)
         if current_step == UnitID.SPAWNINGPOOL:
-            await BuildStep.stepSpawningPool(self)
+            await BuildStep.step_spawning_pool(self)
         if current_step == UnitID.ROACHWARREN:
-            await BuildStep.stepRoachWarren(self)
+            await BuildStep.step_roach_warren(self)
         if current_step == UnitID.QUEEN:
-            await BuildStep.stepQueen(self)
+            await BuildStep.step_queen(self)
         if current_step == AbilID.RESEARCH_ZERGLINGMETABOLICBOOST:
-            await BuildStep.stepLingSpeed(self)
+            await BuildStep.step_ling_speed(self)

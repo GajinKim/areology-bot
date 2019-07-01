@@ -6,7 +6,7 @@ class Unit:
     async def micro_units(self):
         # Roach Micro
         for roach in self.roaches:
-            if roach.health < 20:
+            if roach.health < 30:
                 threats = self.known_enemy_units.closer_than(roach.ground_range + roach.radius, roach.position)
                 if threats.exists and roach.position != threats.closest_to(roach).position:
                     distance = await self._client.query_pathing(roach.position, roach.position.towards(threats.closest_to(roach).position, -2))
