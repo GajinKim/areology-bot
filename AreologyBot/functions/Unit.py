@@ -39,7 +39,36 @@ class Unit:
                         self.actions.append(drone.gather(extractor))
 
     """
-    Micro Functions
+    Overlord Functions
+    """
+    async def send_overlord_scout(self):
+        scouting_overlord = self.overlords[0]
+        self.actions.append(scouting_overlord.move(self.enemy_start_locations[0]))
+
+    async def retreat_overlord_scout(self):
+        for overlord in self.units(UnitID.OVERLORD):
+            damaged_overlord = overlord.health < 200
+            if damaged_overlord:
+                # damaged overlord sent back home
+                self.actions.append(overlord.move(self.units(UnitID.HATCHERY).first.position))
+
+    """
+    Queen Functions
+    """
+    async def inject(self):
+        if not self.queens:
+            return
+        for queen in self.queens.idle:
+            abilities = await self.get_available_abilities(queen)
+            # check if queen can inject
+            # you could also use queen.energy >= 25 to save the async call
+            if AbilID.EFFECT_INJECTLARVA in abilities:
+                hatch = self.units(UnitID.HATCHERY).first
+                self.actions.append(queen(AbilID.EFFECT_INJECTLARVA, hatch))
+
+
+    """
+    Army Micro Functions
     """
     async def micro_units(self):
         # Roach Micro

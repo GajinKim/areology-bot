@@ -80,7 +80,7 @@ class Build:
         if self.minerals < 300:
             return
         self.hatch_limit = self.supply_workers / 20
-        if not self.already_pending(UnitID.HATCHERY) and self.hatcheries < self.hatch_limit:
+        if not self.already_pending(UnitID.HATCHERY) and self.hatcheries.amount < self.hatch_limit:
             self.pauseArmyProduction.append(False)
             await self.expand_now()
             self.pauseArmyProduction.append(True)

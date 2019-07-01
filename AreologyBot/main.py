@@ -15,8 +15,6 @@ from functions.GlobalVariables import *
 from functions.execute_build.BuildOrder import BuildOrder
 
 from functions.my_army.MyArmy import *
-from functions.my_unit.MyOverlord import *
-from functions.my_unit.MyQueen import *
 
 class AreologyBot(sc2.BotAI):
     def __init__(self):
@@ -104,7 +102,7 @@ class AreologyBot(sc2.BotAI):
         if iteration == 0:
             await Unit.worker_split(self)
             await Unit.send_drone_scout(self)
-            await MyOverlord.sendScout(self)
+            await Unit.send_overlord_scout(self)
             await self.chat_send("(glhf)")
 
         # if we're not not in our allin phase or macro phase we must be in our build order phase
@@ -128,10 +126,10 @@ class AreologyBot(sc2.BotAI):
     async def genericMechanics(self):
         # generic macro functions
         await Unit.fill_extractors(self)
-        await MyQueen.doQueenInjects(self)
+        await Unit.inject(self)
         await self.distribute_workers()
         # generic micro functions
-        await Unit.micro_units(self)
+        await MyArmy.microUnits(self)
 
     async def buildOrderPhase(self):
         # execute build
@@ -139,7 +137,7 @@ class AreologyBot(sc2.BotAI):
 
         # build order phase micro functions
         await Unit.retreat_drone_scout(self)
-        await MyOverlord.retreatScout(self)
+        await Unit.retreat_overlord_scout(self)
 
     async def allinPhase(self):
         await Train.train_overlord(self)
