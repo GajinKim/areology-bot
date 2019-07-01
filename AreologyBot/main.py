@@ -64,7 +64,7 @@ class AreologyBot(sc2.BotAI):
         self.clear_map = None
 
         """""""""""
-        initializeGlobalVariables()
+        initialize_global_variables()
         """""""""""
         # Building Variables
         self.hatcheries = self.lairs = self.hives = None
@@ -93,10 +93,9 @@ class AreologyBot(sc2.BotAI):
         self.enableArmyProduction   = [True]
 
         # initialize global variables
-        self.initializeGlobalVariables()
-
+        self.initialize_global_variables()
         # basic mechanics (macro and micro)
-        await self.genericMechanics()
+        await self.generic_mechanics()
 
         # things to only do at the start of the game
         if iteration == 0:
@@ -118,31 +117,31 @@ class AreologyBot(sc2.BotAI):
     """
     Helper Methods
     """
-    def initializeGlobalVariables(self):
+    def initialize_global_variables(self):
         GlobalVariables.building_variables(self)
         GlobalVariables.unit_variables(self)
+        GlobalVariables.upgrade_variables(self)
         GlobalVariables.misc_variables(self)
 
-    async def genericMechanics(self):
+    async def generic_mechanics(self):
         # generic macro functions
         await Unit.fill_extractors(self)
         await Unit.inject(self)
         await Unit.micro_units(self)
-
         await self.distribute_workers()
 
     async def build_order_phase(self):
-        # execute build
         await BuildOrder.execute_build(self)
         await Unit.retreat_drone_scout(self)
         await Unit.retreat_overlord_scout(self)
 
+    # All Building production is halted
     async def allin_phase(self):
         await Train.train_overlord(self)
         await Train.train_queen(self)
         await Train.train_army(self)
-        # start sending units to attack at 4:00
-        await MyArmy.twoBaseAttack(self)
+
+        await MyArmy.two_base_push(self) # build order step is incremented in this function
 
     async def macro_phase(self):
         await Build.hatch_tech_buildings(self)
@@ -155,5 +154,5 @@ class AreologyBot(sc2.BotAI):
         await Train.train_army(self)
 
         await MyArmy.sendUnitsToDefend(self)
-        await MyArmy.sendUnitsToAttack(self)
+        await MyArmy.sendUnitsToAttack(self)    # condition to attack: hit 195 supply
         await Unit.micro_units(self)

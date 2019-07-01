@@ -27,7 +27,7 @@ class BuildStep:
         if not self.spawning_pool_finished:
             return
         pool = self.units(UnitID.SPAWNINGPOOL).first
-        self.actions.append(pool(AbilID.RESEARCH_ZERGLINGMETABOLICBOOST))
+        self.actions.append(pool(self.ling_speed))
         # print console log
         print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
         self.buildorder_step += 1

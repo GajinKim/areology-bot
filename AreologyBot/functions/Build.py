@@ -30,7 +30,7 @@ class Build:
             return
         current_step = self.buildorder[self.buildorder_step]
         # need at least 200 minerals to build a spawning pool
-        if self.spawning_pools.amount == 0 and (current_step == "ALLIN PHASE" or current_step == "MACRO PHASE"):
+        if self.spawning_pools.amount == 0:
             self.pauseArmyProduction.append(False)
             self.pauseDroneProduction.append(False)
 
@@ -46,7 +46,7 @@ class Build:
             return
         current_step = self.buildorder[self.buildorder_step]
         # in case warren was destroyed some point after the build phase
-        if self.roach_warrens.amount == 0 and (current_step == "ALLIN PHASE" or current_step == "MACRO PHASE"):
+        if self.roach_warrens.amount == 0:
             self.pauseArmyProduction.append(False)
             self.pauseDroneProduction.append(False)
 

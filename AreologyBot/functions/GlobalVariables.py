@@ -65,6 +65,8 @@ class GlobalVariables:
         self.brood_lords =                  self.units(UnitTypeId.BROODLORD)
         self.brood_lings =                  self.units(UnitTypeId.BROODLING)
 
+    def upgrade_variables(self):
+        self.ling_speed =                   AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST
         "need to add upgrade_variables later"
 
     def misc_variables(self):

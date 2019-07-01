@@ -53,7 +53,7 @@ class MyArmy:
                     else:
                         return
 
-    async def twoBaseAttack(self):
+    async def two_base_push(self):
         if self.time / 60 < 4.25:
             return
         if self.time / 60 >= 4.25:
@@ -62,8 +62,7 @@ class MyArmy:
             for unit in army_idle:
                 # issue an attack command to the enemy's main
                 self.actions.append(unit.attack(self.enemy_start_locations[0]))
-
         # marks the end of the allin phase
         if self.time / 60 >= 5.5:
             await self.chat_send("(probe) starting the macro phase! (probe)")
-            self.buildorder_step += 1
+            self.buildorder_step += 1   # ALLIN PHASE -> MACRO PHASE
