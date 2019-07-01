@@ -5,7 +5,7 @@ Add 'upgrade_variabes' to GlobalVariables.py
 
 redo method names (should be lower_case_spaced)
 
-better optimize drone and overlord scouting patterns
+better optimize drone and overlord scouting patterns (redo retreat_drone_scout, doesn't actually select the scouting drone atm)
 
 add early game defense measures from information gathered from scouting
 

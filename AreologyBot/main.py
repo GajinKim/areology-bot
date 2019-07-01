@@ -7,14 +7,14 @@ from sc2.position import *
 
 import functions
 from functions.Unit import *
-from functions.GlobalVariables import *
 from functions.Build import *
 from functions.Train import *
+
+from functions.GlobalVariables import *
 
 from functions.execute_build.BuildOrder import BuildOrder
 
 from functions.my_army.MyArmy import *
-from functions.my_unit.MyDrone import *
 from functions.my_unit.MyOverlord import *
 from functions.my_unit.MyQueen import *
 
@@ -102,8 +102,8 @@ class AreologyBot(sc2.BotAI):
 
         # things to only do at the start of the game
         if iteration == 0:
-            await MyDrone.split_workers(self)
-            await MyDrone.send_scout(self)
+            await Unit.worker_split(self)
+            await Unit.send_drone_scout(self)
             await MyOverlord.sendScout(self)
             await self.chat_send("(glhf)")
 
@@ -127,7 +127,7 @@ class AreologyBot(sc2.BotAI):
 
     async def genericMechanics(self):
         # generic macro functions
-        await MyDrone.fill_extractor(self)
+        await Unit.fill_extractors(self)
         await MyQueen.doQueenInjects(self)
         await self.distribute_workers()
         # generic micro functions
@@ -138,7 +138,7 @@ class AreologyBot(sc2.BotAI):
         await BuildOrder.executeBuild(self)
 
         # build order phase micro functions
-        await MyDrone.retreat_scout(self)
+        await Unit.retreat_drone_scout(self)
         await MyOverlord.retreatScout(self)
 
     async def allinPhase(self):
