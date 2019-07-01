@@ -48,7 +48,7 @@ class Unit:
     async def retreat_overlord_scout(self):
         for overlord in self.units(UnitID.OVERLORD):
             damaged_overlord = overlord.health < 200
-            if damaged_overlord:
+            if damaged_overlord or self.time / 60 == 2.5:
                 # damaged overlord sent back home
                 self.actions.append(overlord.move(self.units(UnitID.HATCHERY).first.position))
 

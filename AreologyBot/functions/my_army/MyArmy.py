@@ -53,50 +53,6 @@ class MyArmy:
                     else:
                         return
 
-    async def microUnits(self):
-        # we can only fight ground units and we dont want to fight larvae
-        ground_enemies = self.known_enemy_units.filter(lambda unit: not unit.is_flying and unit.type_id != UnitID.LARVA)
-        # no need to do anything here if we dont see anything
-        if not ground_enemies:
-            return
-        army = self.units.filter(lambda unit: unit.type_id in self.army_units)
-        # create selection of dangerous enemy units.
-        # bunker and uprooted spine dont have weapon, but should be in that selection
-        # also add spinecrawler and cannon if they are not ready yet and have no weapon
-        enemy_fighters = ground_enemies.filter(
-            lambda u: u.can_attack
-            or u.type_id in {UnitID.BUNKER, UnitID.SPINECRAWLERUPROOTED, UnitID.SPINECRAWLER, UnitID.PHOTONCANNON}
-        )
-        for unit in army:
-            if enemy_fighters:
-                # select enemies in range
-                in_range_enemies = enemy_fighters.in_attack_range_of(unit)
-                if in_range_enemies:
-                    # prioritize works if in range
-                    workers = in_range_enemies({UnitID.DRONE, UnitID.SCV, UnitID.PROBE})
-                    if workers:
-                        in_range_enemies = workers
-                    # special micro for ranged units
-                    if unit.ground_range > 1:
-                        # attack if weapon not on cooldown
-                        if unit.weapon_cooldown == 0:
-                            # attack enemy with lowest hp of the ones in range
-                            lowest_hp = min(in_range_enemies, key=lambda e: e.health + e.shield)
-                            self.actions.append(unit.attack(lowest_hp))
-                        else:
-                            closest_enemy = enemy_fighters.closest_to(unit)
-                            self.actions.append(unit.move(closest_enemy.position.towards(unit, unit.ground_range)))
-                    else:
-                        # target fire with lings
-                        lowest_hp = min(in_range_enemies, key=lambda e: e.health + e.shield)
-                        self.actions.append(unit.attack(lowest_hp))
-                else:
-                    # no unit in range, go to closest
-                    self.actions.append(unit.move(enemy_fighters.closest_to(unit)))
-            else:
-                # no dangerous enemy at all, attack closest of everything
-                self.actions.append(unit.attack(ground_enemies.closest_to(unit)))
-
     async def twoBaseAttack(self):
         if self.time / 60 < 4.25:
             return

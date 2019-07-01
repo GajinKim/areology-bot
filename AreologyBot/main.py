@@ -127,9 +127,9 @@ class AreologyBot(sc2.BotAI):
         # generic macro functions
         await Unit.fill_extractors(self)
         await Unit.inject(self)
+        await Unit.micro_units(self)
+        
         await self.distribute_workers()
-        # generic micro functions
-        await MyArmy.microUnits(self)
 
     async def buildOrderPhase(self):
         # execute build
