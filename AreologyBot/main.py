@@ -106,9 +106,9 @@ class AreologyBot(sc2.BotAI):
             await self.chat_send("(glhf)")
 
         # if we're not not in our allin phase or macro phase we must be in our build order phase
-        if not self.buildorder[self.buildorder_step] == "ALLIN PHASE" and not self.buildorder[self.buildorder_step] == "MACRO PHASE": await self.buildOrderPhase()
-        if self.buildorder[self.buildorder_step] == "ALLIN PHASE": await self.allinPhase()
-        if self.buildorder[self.buildorder_step] == "MACRO PHASE": await self.macroPhase()
+        if not self.buildorder[self.buildorder_step] == "ALLIN PHASE" and not self.buildorder[self.buildorder_step] == "MACRO PHASE": await self.build_order_phase()
+        if self.buildorder[self.buildorder_step] == "ALLIN PHASE": await self.allin_phase()
+        if self.buildorder[self.buildorder_step] == "MACRO PHASE": await self.macro_phase()
 
         # do list of actions of the current step
         await self.do_actions(self.actions)
@@ -131,31 +131,23 @@ class AreologyBot(sc2.BotAI):
 
         await self.distribute_workers()
 
-    async def buildOrderPhase(self):
+    async def build_order_phase(self):
         # execute build
-        await BuildOrder.executeBuild(self)
-
-        # build order phase micro functions
+        await BuildOrder.execute_build(self)
         await Unit.retreat_drone_scout(self)
         await Unit.retreat_overlord_scout(self)
 
-    async def allinPhase(self):
+    async def allin_phase(self):
         await Train.train_overlord(self)
         await Train.train_queen(self)
         await Train.train_army(self)
         # start sending units to attack at 4:00
         await MyArmy.twoBaseAttack(self)
 
-    async def macroPhase(self):
-        await Build.build_hatchery(self)
-        await Build.upgrade_to_lair(self)
-        await Build.upgrade_to_hive(self)
-        await Build.build_extractor(self)
-        await Build.build_evolution_chamber(self)
-        await Build.build_spawning_pool(self)
-        await Build.build_roach_warren(self)
-        await Build.build_hydralisk_den(self)
-        await Build.build_infestation_pit(self)
+    async def macro_phase(self):
+        await Build.hatch_tech_buildings(self)
+        await Build.lair_tech_buildings(self)
+        await Build.hive_tech_buildings(self)
 
         await Train.train_overlord(self)
         await Train.train_drone(self)

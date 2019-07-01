@@ -7,7 +7,7 @@ import functions
 from functions.execute_build.BuildStep import *
 
 class BuildOrder:
-    async def executeBuild(self):
+    async def execute_build(self):
         # nothing costs less than 25 minerals (except deez nutz)
         if self.minerals < 25:
             return
