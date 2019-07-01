@@ -7,6 +7,7 @@ from sc2.position import *
 
 import functions
 from functions.Unit import *
+from functions.GlobalVariables import *
 
 from functions.build_building.BuildBuilding import BuildBuilding as BuildingMake
 from functions.build_unit.BuildUnit import BuildUnit
@@ -18,7 +19,6 @@ from functions.my_unit.MyDrone import *
 from functions.my_unit.MyOverlord import *
 from functions.my_unit.MyQueen import *
 
-from GlobalVariables import *
 
 """
 TODO LIST:
@@ -133,9 +133,9 @@ class AreologyBot(sc2.BotAI):
     Helper Methods
     """
     def initializeGlobalVariables(self):
-        GlobalVariables.buildingVariables(self)
-        GlobalVariables.unitVariables(self)
-        GlobalVariables.miscVariables(self)
+        GlobalVariables.building_variables(self)
+        GlobalVariables.unit_variables(self)
+        GlobalVariables.misc_variables(self)
 
     async def genericMechanics(self):
         # generic macro functions

@@ -9,7 +9,7 @@ class BuildUnit:
         # train up to 80 drones
         if self.larvae and self.supply_workers < 80:
             # train up to 22 drones per base
-            if self.droneSupply < 22 * self.townhalls.ready.amount:
+            if self.worker_supply < 22 * self.townhalls.ready.amount:
                 self.actions.append(self.larvae.first.train(UnitID.DRONE))
 
     async def trainQueens(self):
@@ -38,7 +38,7 @@ class BuildUnit:
         if self.minerals < 50 or not self.enableArmyProduction:
             return
         # prioritize workers if somehow have fewer than 15
-        if self.larvae and self.droneSupply < 15:
+        if self.larvae and self.worker_supply < 15:
             self.actions.append(self.larvae.first.train(UnitID.DRONE))
         if self.larvae and self.roach_warren_finished:
             if self.can_afford(UnitID.ROACH):

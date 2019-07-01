@@ -102,7 +102,7 @@ class MyArmy:
             return
         if self.time / 60 >= 4.25:
             # gather all idle army units
-            army_idle = self.armyUnits.idle
+            army_idle = self.army_units.idle
             for unit in army_idle:
                 # issue an attack command to the enemy's main
                 self.actions.append(unit.attack(self.enemy_start_locations[0]))

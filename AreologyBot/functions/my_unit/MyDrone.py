@@ -15,7 +15,7 @@ class MyDrone:
                 self.actions.append(drone.gather(first_mineral_patch))
 
     async def fill_extractor(self):
-        for extractor in self.units(UnitID.EXTRACTOR):
+        for extractor in self.extractors:
             # returns negative value if not enough workers
             if extractor.surplus_harvesters < 0:
                 drones_with_no_minerals = self.drones.filter(lambda unit: not unit.is_carrying_minerals)
