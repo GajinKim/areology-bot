@@ -8,9 +8,8 @@ from sc2.position import *
 import functions
 from functions.Unit import *
 from functions.GlobalVariables import *
-
-from functions.build_building.BuildBuilding import BuildBuilding as BuildingMake
-from functions.build_unit.BuildUnit import BuildUnit
+from functions.Build import *
+from functions.Train import *
 
 from functions.execute_build.BuildOrder import BuildOrder
 
@@ -19,17 +18,6 @@ from functions.my_unit.MyDrone import *
 from functions.my_unit.MyOverlord import *
 from functions.my_unit.MyQueen import *
 
-
-"""
-TODO LIST:
-- redo method names (should be lower_case_spaced)
-- Better optimize drone and overlord scouting patterns
-    - currently taking advantage of methods that can cause issues later on and should therefore be removed
-- Add early game defense measures from information gathered from scouting
-- Refactor this class
-- Implement Queen creep spread (possibly use legacy code)
-- Fix the attack method, scouting allowed me to realize that there are issues
-"""
 class AreologyBot(sc2.BotAI):
     def __init__(self):
         # list of actions we do at each step
@@ -154,27 +142,27 @@ class AreologyBot(sc2.BotAI):
         await MyOverlord.retreatScout(self)
 
     async def allinPhase(self):
-        await BuildUnit.trainOverlords(self)
-        await BuildUnit.trainQueens(self)
-        await BuildUnit.trainArmy(self)
+        await Train.train_overlord(self)
+        await Train.train_queen(self)
+        await Train.train_army(self)
         # start sending units to attack at 4:00
         await MyArmy.twoBaseAttack(self)
 
     async def macroPhase(self):
-        await BuildingMake.build_hatchery(self)
-        await BuildingMake.upgrade_to_lair(self)
-        await BuildingMake.upgrade_to_hive(self)
-        await BuildingMake.build_extractor(self)
-        await BuildingMake.build_evolution_chamber(self)
-        await BuildingMake.build_spawning_pool(self)
-        await BuildingMake.build_roach_warren(self)
-        await BuildingMake.build_hydralisk_den(self)
-        await BuildingMake.build_infestation_pit(self)
+        await Build.build_hatchery(self)
+        await Build.upgrade_to_lair(self)
+        await Build.upgrade_to_hive(self)
+        await Build.build_extractor(self)
+        await Build.build_evolution_chamber(self)
+        await Build.build_spawning_pool(self)
+        await Build.build_roach_warren(self)
+        await Build.build_hydralisk_den(self)
+        await Build.build_infestation_pit(self)
 
-        await BuildUnit.trainOverlords(self)
-        await BuildUnit.trainDrones(self)
-        await BuildUnit.trainQueens(self)
-        await BuildUnit.trainArmy(self)
+        await Train.train_overlord(self)
+        await Train.train_drone(self)
+        await Train.train_queen(self)
+        await Train.train_army(self)
 
         await MyArmy.sendUnitsToDefend(self)
         await MyArmy.sendUnitsToAttack(self)

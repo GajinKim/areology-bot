@@ -1,8 +1,8 @@
 import sc2
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 
-class BuildUnit:
-    async def trainDrones(self):
+class Train:
+    async def train_drone(self):
         # drones cost 50 minerals
         if self.minerals < 50 or not self.enableDroneProduction:
             return
@@ -12,7 +12,7 @@ class BuildUnit:
             if self.worker_supply < 22 * self.townhalls.ready.amount:
                 self.actions.append(self.larvae.first.train(UnitID.DRONE))
 
-    async def trainQueens(self):
+    async def train_queen(self):
         self.queenCount = self.queens.amount + self.already_pending(UnitID.QUEEN)
         # queens cost 150 minerals
         if self.minerals < 150 or not self.enableQueenProduction:
@@ -33,7 +33,7 @@ class BuildUnit:
                         self.actions.append(hatch.train(UnitID.QUEEN))
                     return
 
-    async def trainArmy(self):
+    async def train_army(self):
         # cheapest army unit costs 50 minerals
         if self.minerals < 50 or not self.enableArmyProduction:
             return
@@ -53,7 +53,7 @@ class BuildUnit:
             elif self.can_afford(UnitID.ROACH):
                 self.actions.append(self.larvae.first.train(UnitID.ROACH))
 
-    async def trainOverlords(self):
+    async def train_overlord(self):
         # build more overlords after buildorder
         # you need larva and enough minerals
         # prevent overlords if you have reached the cap already

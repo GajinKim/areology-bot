@@ -1,0 +1,14 @@
+TODO LIST:
+________________________________________________________________________________
+
+Add 'upgrade_variabes' to GlobalVariables.py
+
+redo method names (should be lower_case_spaced)
+
+better optimize drone and overlord scouting patterns
+
+add early game defense measures from information gathered from scouting
+
+implement Queen creep spread (possibly use legacy code)
+
+________________________________________________________________________________

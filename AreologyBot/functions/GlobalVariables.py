@@ -65,6 +65,8 @@ class GlobalVariables:
         self.brood_lords =                  self.units(UnitTypeId.BROODLORD)
         self.brood_lings =                  self.units(UnitTypeId.BROODLING)
 
+        "need to add upgrade_variables later"
+
     def misc_variables(self):
         self.from_larva =                   {UnitTypeId.DRONE, UnitTypeId.OVERLORD, UnitTypeId.ZERGLING, UnitTypeId.ROACH, UnitTypeId.HYDRALISK, UnitTypeId.INFESTOR, UnitTypeId.SWARMHOSTMP,
                                             UnitTypeId.MUTALISK, UnitTypeId.CORRUPTOR, UnitTypeId.VIPER}
