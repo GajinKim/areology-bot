@@ -42,30 +42,34 @@ class GlobalVariables:
         self.greater_spire_finished =       self.units(UnitTypeId.GREATERSPIRE).ready
 
     def unit_variables(self):
+        # Hatch Tech
         self.larvae =                       self.units(UnitTypeId.LARVA)
         self.drones =                       self.units(UnitTypeId.DRONE)
+        self.overlords =                    self.units(UnitTypeId.OVERLORD)
         self.queens =                       self.units(UnitTypeId.QUEEN)
         self.zerglings =                    self.units(UnitTypeId.ZERGLING)
         self.banelings =                    self.units(UnitTypeId.BANELING)
         self.roaches =                      self.units(UnitTypeId.ROACH)
         self.ravagers =                     self.units(UnitTypeId.RAVAGER)
+        # Lair Tech
         self.hydralisks =                   self.units(UnitTypeId.HYDRALISK)
         self.lurkers =                      self.units(UnitTypeId.LURKER)
-        self.infestors =                    self.units(UnitTypeId.INFESTOR)
-        self.infested_terrans =             self.units(UnitTypeId.INFESTEDTERRAN)
-        self.swarm_hosts =                  self.units(UnitTypeId.SWARMHOSTMP)
-        self.locusts =                      self.units(UnitTypeId.LOCUSTMP)
-        self.ultralisks =                   self.units(UnitTypeId.ULTRALISK)
-        self.overlords =                    self.units(UnitTypeId.OVERLORD)
         self.overseers =                    self.units(UnitTypeId.OVERSEER)
         self.changelings =                  self.units(UnitTypeId.CHANGELING)
-        self.mutalisks =                    self.units(UnitTypeId.MUTALISK)
         self.corruptors =                   self.units(UnitTypeId.CORRUPTOR)
+        self.swarm_hosts =                  self.units(UnitTypeId.SWARMHOSTMP)
+        self.locusts =                      self.units(UnitTypeId.LOCUSTMP)
+        self.infestors =                    self.units(UnitTypeId.INFESTOR)
+        self.infested_terrans =             self.units(UnitTypeId.INFESTEDTERRAN)
+        self.mutalisks =                    self.units(UnitTypeId.MUTALISK)
+        # Hive Tech
         self.vipers =                       self.units(UnitTypeId.VIPER)
+        self.ultralisks =                   self.units(UnitTypeId.ULTRALISK)
         self.brood_lords =                  self.units(UnitTypeId.BROODLORD)
         self.brood_lings =                  self.units(UnitTypeId.BROODLING)
 
     def upgrade_variables(self):
+        # Attack Upgrades
         self.ling_speed =                   AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST
         "need to add upgrade_variables later"
 
