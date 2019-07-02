@@ -13,8 +13,8 @@ class BuildOrder:
             return
         # get current step
         current_step = self.buildorder[self.buildorder_step]
-        # check that we're in the correct phase and we have enough resources
-        if current_step == "ALLIN PHASE" or current_step == "MACRO PHASE" or not self.can_afford(current_step):
+        # check that we have enough resources to afford the current step
+        if not self.can_afford(current_step):
             return
 
         # steps that consume larva (drone, zergling, overlord)

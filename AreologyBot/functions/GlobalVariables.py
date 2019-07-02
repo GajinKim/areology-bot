@@ -52,7 +52,7 @@ class GlobalVariables:
         self.roaches =                      self.units(UnitTypeId.ROACH)
         self.ravagers =                     self.units(UnitTypeId.RAVAGER)
         # Lair Tech
-        self.hydralisks =                   self.units(UnitTypeId.HYDRALISK)
+        self.hydras =                       self.units(UnitTypeId.HYDRALISK)
         self.lurkers =                      self.units(UnitTypeId.LURKER)
         self.overseers =                    self.units(UnitTypeId.OVERSEER)
         self.changelings =                  self.units(UnitTypeId.CHANGELING)

@@ -6,7 +6,7 @@ from sc2.ids.ability_id import AbilityId as AbilID
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import Point2
 
-class MyArmy:
+class Army:
     async def sendUnitsToAttack(self):
         if self.supply_used < 190:
             return
@@ -64,5 +64,5 @@ class MyArmy:
                 self.actions.append(unit.attack(self.enemy_start_locations[0]))
         # marks the end of the allin phase
         if self.time / 60 >= 5.5:
-            await self.chat_send("(probe) starting the macro phase! (probe)")
+            await self.chat_send("(probe) starting the mid game! (probe)")
             self.buildorder_step += 1   # ALLIN PHASE -> MACRO PHASE

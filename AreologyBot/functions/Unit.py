@@ -37,7 +37,6 @@ class Unit:
                         # prevent crash by only taking the minimum
                         drone = drones_with_no_minerals[min(n, drones_with_no_minerals.amount) - 1]
                         self.actions.append(drone.gather(extractor))
-
     """
     Overlord Functions
     """
@@ -51,7 +50,6 @@ class Unit:
             if damaged_overlord or self.time / 60 == 2.5:
                 # damaged overlord sent back home
                 self.actions.append(overlord.move(self.units(UnitID.HATCHERY).first.position))
-
     """
     Queen Functions
     """
@@ -65,8 +63,6 @@ class Unit:
             if AbilID.EFFECT_INJECTLARVA in abilities:
                 hatch = self.units(UnitID.HATCHERY).first
                 self.actions.append(queen(AbilID.EFFECT_INJECTLARVA, hatch))
-
-
     """
     Army Micro Functions
     """
