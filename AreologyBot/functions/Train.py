@@ -71,7 +71,7 @@ class Train:
     async def mg_train_army(self):
         if self.minerals < 50 or self.pause_army_production:
             return
-        # If we somehow end up with less than 15 drones, build them first
+        # If we somehow end up with less than 15 drones, priotize workers
         if self.larvae and self.worker_supply < 15:
             self.actions.append(self.larvae.first.train(UnitID.DRONE))
         # Prioritzation: Hydralisk > Roach
