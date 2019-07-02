@@ -80,35 +80,28 @@ class AreologyBot(sc2.BotAI):
         self.armyUnits = self.droneSupply = self.armySupply = None
 
         """""""""""
-        production
+        Production
         """""""""""
-        self.pause_drone_production   = []
-        self.pause_queen_production   = []
-        self.pause_army_production    = []
+        self.pause_drone_production = []
+        self.pause_queen_production = []
+        self.pause_army_production  = []
 
     async def on_step(self, iteration):
-        # reinitialize production enablers every step
-        self.enable_drone_production  = [True]
-        self.enable_queen_production  = [True]
-        self.enable_army_production   = [True]
-
         # initialize global variables
         self.initialize_global_variables()
         # basic mechanics (macro and micro)
         await self.generic_mechanics()
 
-        # things to only do at the start of the game
+        # Things to only do once at the very start of the game
         if iteration == 0:
-            await Unit.worker_split(self)
-            await Unit.send_drone_scout(self)
-            await Unit.send_overlord_scout(self)
-            await self.chat_send("(glhf)")
+            await self.game_start()
 
-        # if we're not not in our allin phase or macro phase we must be in our build order phase
-        if not self.buildorder[self.buildorder_step] == "ROACH PUSH" and not self.buildorder[self.buildorder_step] == "MID GAME": await self.build_order_phase()
-        if self.buildorder[self.buildorder_step] == "ALLIN PHASE":  await self.roach_push()
-        if self.buildorder[self.buildorder_step] == "MID GAME":     await self.mid_game()
-        if self.buildorder[self.buildorder_step] == "LATE GAME":    await self.late_game()
+        # Determine what stage we are currently at
+        if self.buildorder[self.buildorder_step]   == "ROACH PUSH":         await self.roach_push()
+        elif self.buildorder[self.buildorder_step] == "MID GAME":           await self.mid_game()
+        elif self.buildorder[self.buildorder_step] == "LATE GAME":          await self.late_game()
+        elif self.buildorder[self.buildorder_step] == "SUPREME LATE GAME":  await self.supreme_late_game()
+        else:                                                               await self.build_order_phase()
 
         # do list of actions of the current step
         await self.do_actions(self.actions)
@@ -131,10 +124,16 @@ class AreologyBot(sc2.BotAI):
         await Unit.micro_units(self)
         await self.distribute_workers()
 
+    async def game_start(self):
+        await Unit.drone_split(self)
+        await Unit.drone_scout(self)
+        await Unit.overlord_scout(self)
+        await self.chat_send("(glhf)")
+
     async def build_order_phase(self):
         await BuildOrder.execute_build(self)
-        await Unit.retreat_drone_scout(self)
-        await Unit.retreat_overlord_scout(self)
+        await Unit.drone_scout_retreat(self)
+        await Unit.overlord_scout_retreat(self)
 
     """
     Gameplay Setup
@@ -145,23 +144,31 @@ class AreologyBot(sc2.BotAI):
         await Train.train_overlord(self)
         await Train.rp_train_queen(self)
         await Train.rp_train_army(self)
+
         await Army.two_base_push(self) # build order step is incremented in this function
 
     # Resume: Building and Drone Production
     async def mid_game(self):
         await Build.hatch_tech_buildings(self)
         await Build.lair_tech_buildings(self)
-        await Build.hive_tech_buildings(self)
+
         await Train.train_overlord(self)
         await Train.train_drone(self)
         await Train.mg_train_queen(self)
         await Train.mg_train_army(self)
+
         await Army.sendUnitsToDefend(self)
-        await Army.sendUnitsToAttack(self)    # condition to attack: hit 195 supply
+        await Army.sendUnitsToAttack(self)
+
         await Unit.micro_units(self)
 
-    #async def late_game(self):
-        # TODO
+    async def late_game(self):
+        await Build.hatch_tech_buildings(self)
+        await Build.lair_tech_buildings(self)
+        await Build.lair_tech_buildings(self)
+
+        await Train.train_overlord(self)
+        await Train.train_drone(self)
 
     #async def supreme_late_game(self):
         # TODO

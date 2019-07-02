@@ -1,9 +1,7 @@
 TODO LIST:
 ________________________________________________________________________________
 
-Add 'upgrade_variabes' to GlobalVariables.py
-
-redo method names (should be lower_case_spaced)
+Consider adding TrainQueen to its own file, but also maybe not.
 
 better optimize drone and overlord scouting patterns (redo retreat_drone_scout, doesn't actually select the scouting drone atm / same with overlord scout)
 

@@ -7,7 +7,7 @@ class Unit:
     Drone Functions
     """
     # split workers as soon as the game starts
-    async def worker_split(self):
+    async def drone_split(self):
         for drone in self.drones:
             # find closest mineral patch
             closest_mineral_patch = self.state.mineral_field.closest_to(drone)
@@ -15,11 +15,11 @@ class Unit:
         # only do on_step every nth step, 8 is standard
         self._client.game_step = 8
 
-    async def send_drone_scout(self):
+    async def drone_scout(self):
         scouting_drone = self.drones[0]
         self.actions.append(scouting_drone.attack(self.enemy_start_locations[0]))
 
-    async def retreat_drone_scout(self):
+    async def drone_scout_retreat(self):
         for drone in self.drones:
             damaged_drone = drone.health < 40
             if damaged_drone and self.time / 60 < 2:
@@ -40,11 +40,11 @@ class Unit:
     """
     Overlord Functions
     """
-    async def send_overlord_scout(self):
+    async def overlord_scout(self):
         scouting_overlord = self.overlords[0]
         self.actions.append(scouting_overlord.move(self.enemy_start_locations[0]))
 
-    async def retreat_overlord_scout(self):
+    async def overlord_scout_retreat(self):
         for overlord in self.units(UnitID.OVERLORD):
             damaged_overlord = overlord.health < 200
             if damaged_overlord or self.time / 60 == 2.5:
