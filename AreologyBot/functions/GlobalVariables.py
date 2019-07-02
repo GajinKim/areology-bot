@@ -103,7 +103,7 @@ class GlobalVariables:
         # Infestation Pit Upgrades
         self.neural_parasite =              AbilityId.RESEARCH_NEURALPARASITE
         # Ultralisk Cavern Upgrades
-        self.ultralisk_armor =              AbilityId.RESERACH_CHITINOUSPLATING
+        self.ultralisk_armor =              AbilityId.RESEARCH_CHITINOUSPLATING
 
     def misc_variables(self):
         self.from_larva =                   {UnitTypeId.DRONE, UnitTypeId.OVERLORD, UnitTypeId.ZERGLING, UnitTypeId.ROACH, UnitTypeId.HYDRALISK, UnitTypeId.INFESTOR, UnitTypeId.SWARMHOSTMP,
