@@ -68,6 +68,7 @@ class AreologyBot(sc2.BotAI):
         """""""""""
         Phase Variables
         """""""""""
+        self.scouting_drone     = []
         self.scout_sent         = []    # Build Order
         self.roach_push_started = []    # Roach Push
 
