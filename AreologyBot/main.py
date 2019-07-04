@@ -56,7 +56,6 @@ class AreologyBot(sc2.BotAI):
             "LATE GAME"
             ]
         self.buildorder_step = 0
-        self.buildorder_step_name = self.buildorder[self.buildorder_step]
         # expansion we need to clear next, changed in 'send_idle_army'
         self.army_target = None
         # generator we need to cycle through expansions, created in 'send_units'
@@ -95,13 +94,13 @@ class AreologyBot(sc2.BotAI):
             await self.on_game_start()
 
         # Determine what stage we are currently at
-        if self.buildorder_step_name != ("ROACH PUSH" or "MID GAME" or "LATE GAME"):
+        if self.buildorder[self.buildorder_step] != ("ROACH PUSH" or "MID GAME" or "LATE GAME"):
             await self.on_build_order()
-        elif self.buildorder_step_name == "ROACH PUSH":
+        if self.buildorder[self.buildorder_step] == "ROACH PUSH":
             await self.on_roach_push()
-        elif self.buildorder_step_name == "MID GAME":
+        if self.buildorder[self.buildorder_step] == "MID GAME":
             await self.on_mid_game()
-        elif self.buildorder_step_name == "LATE GAME":
+        if self.buildorder[self.buildorder_step] == "LATE GAME":
             await self.on_late_game()
 
         # do list of actions of the current step
