@@ -16,9 +16,9 @@ from functions.BuildOrder import *
 
 class AreologyBot(sc2.BotAI):
     def __init__(self):
-        # list of actions we do at each step
+        # list of actions we do on_step
         self.actions = []
-        # buildorder
+        # 2 base roach push build order
         self.buildorder = [
             UnitID.DRONE,       # 13/14
             UnitID.OVERLORD,    # 13/14
@@ -88,10 +88,12 @@ class AreologyBot(sc2.BotAI):
     async def on_step(self, iteration):
         # Generic Setup
         self.initialize_global_variables()
+        await self.generic_mechanics()
 
         # Things to only do once at the very start of the game
         if iteration == 0:
             await self.on_game_start()
+
         # Determine what stage we are currently at
         if self.buildorder_step_name != ("ROACH PUSH" or "MID GAME" or "LATE GAME"):
             await self.on_build_order()
@@ -101,8 +103,6 @@ class AreologyBot(sc2.BotAI):
             await self.on_mid_game()
         elif self.buildorder_step_name == "LATE GAME":
             await self.on_late_game()
-
-        # await self.generic_mechanics()
 
         # do list of actions of the current step
         await self.do_actions(self.actions)
@@ -125,9 +125,9 @@ class AreologyBot(sc2.BotAI):
         await Unit.micro_units(self)
         await self.distribute_workers()
 
-    """
+    """""""""""
     Hard Coded Actions
-    """
+    """""""""""
     async def on_game_start(self):
         await Unit.drone_split(self)
         await Unit.drone_scout(self)
