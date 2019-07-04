@@ -131,10 +131,11 @@ class AreologyBot(sc2.BotAI):
 
     async def generic_mechanics(self):
         # generic macro functions
+        await self.distribute_workers()
+        await Army.send_army_to_defend(self)
         await Unit.fill_extractors(self)
         await Unit.inject(self)
         await Unit.micro_units(self)
-        await self.distribute_workers()
 
     """""""""""
     Hard Coded Actions
@@ -158,10 +159,7 @@ class AreologyBot(sc2.BotAI):
     async def on_roach_push(self):
         await RoachPush.power_up(self)
         await RoachPush.start_push(self)
-        await RoachPush.end_push(self)  # Ends RoachPush, Starts MidGame
-
-        "todo: refactor this later"
-        await Army.send_army_to_defend(self)
+        await RoachPush.end_push(self)  # Ends Roach Push. Starts Mid Game
 
     """""""""""
     Non-Hard Coded Actions

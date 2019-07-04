@@ -14,15 +14,17 @@ class RoachPush:
             for unit in army:
                 # issue an attack command towards the enemy's main
                 self.actions.append(unit.attack(self.enemy_start_locations[0]))
-                # update variable
+            # Update Variable
+            if not self.roach_push_started:
                 self.roach_push_started.append(True)
+                await self.chat_send("starting roach push!")
 
     async def end_push(self):
         if not self.roach_push_started:
             return
-        if self.minutes >= 10 or self.army_supply < 30:
+        if self.army_supply < 30:
             await self.chat_send("ending roach push!")
-            # gather all surviving army units
+            # gather all survivors
             army = self.army_units
             for unit in army:
                 # retreat home
