@@ -3,7 +3,7 @@ from sc2.constants import *
 from sc2.ids.ability_id import AbilityId
 from sc2.ids.unit_typeid import UnitTypeId
 
-class GlobalVariables:
+class Variables:
     def __init__(self):
         self.building_variables()
         self.unit_variables()
@@ -69,8 +69,8 @@ class GlobalVariables:
         self.brood_lings =                  self.units(UnitTypeId.BROODLING)
 
     def upgrade_variables(self):
-        # Evolution Chamber Upgrades
-        self.melee_attacks_1 =              AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL1
+
+        self.melee_attacks_1 =              AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL1   # Evolution Chamber Upgrades
         self.melee_attacks_2 =              AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL2
         self.melee_attacks_3 =              AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL3
         self.missile_attacks_1 =            AbilityId.RESEARCH_ZERGMISSILEWEAPONSLEVEL1
@@ -79,31 +79,31 @@ class GlobalVariables:
         self.ground_armor_1 =               AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL1
         self.ground_armor_2 =               AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL2
         self.ground_armor_3 =               AbilityId.RESEARCH_ZERGGROUNDARMORLEVEL3
-        # Spire Upgrades
-        self.flyer_attacks_1 =              AbilityId.RESEARCH_ZERGFLYERATTACKLEVEL1
+
+        self.flyer_attacks_1 =              AbilityId.RESEARCH_ZERGFLYERATTACKLEVEL1    # Spire Upgrades
         self.flyer_attacks_2 =              AbilityId.RESEARCH_ZERGFLYERATTACKLEVEL2
         self.flyer_attacks_3 =              AbilityId.RESEARCH_ZERGFLYERATTACKLEVEL3
         self.flyer_armor_1 =                AbilityId.RESEARCH_ZERGFLYERARMORLEVEL1
         self.flyer_armor_2 =                AbilityId.RESEARCH_ZERGFLYERARMORLEVEL2
         self.flyer_armor_3 =                AbilityId.RESEARCH_ZERGFLYERARMORLEVEL3
-        # Hatchery Upgrades
-        self.overlord_speed =               AbilityId.RESEARCH_PNEUMATIZEDCARAPACE
+
+        self.overlord_speed =               AbilityId.RESEARCH_PNEUMATIZEDCARAPACE      # Hatchery Upgrades
         self.burrow =                       AbilityId.RESEARCH_BURROW
-        # Spawning Pool Upgrades
-        self.ling_speed =                   AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST
+
+        self.ling_speed =                   AbilityId.RESEARCH_ZERGLINGMETABOLICBOOST   # Spawning Pool Upgrades
         self.adrenal_glandes =              AbilityId.RESEARCH_ZERGLINGADRENALGLANDS
-        # Baneling Nest Upgrades
-        self.bane_speed =                   AbilityId.RESEARCH_CENTRIFUGALHOOKS
-        # Roach Warren Upgrades
-        self.roach_speed =                  AbilityId.RESEARCH_GLIALREGENERATION
+
+        self.bane_speed =                   AbilityId.RESEARCH_CENTRIFUGALHOOKS         # Baneling Nest Upgrades
+
+        self.roach_speed =                  AbilityId.RESEARCH_GLIALREGENERATION        # Roach Warren Upgrades
         self.tunneling_claws =              AbilityId.RESEARCH_TUNNELINGCLAWS
-        # Hydralisk Den Upgrades
-        self.hydra_speed =                  AbilityId.RESEARCH_MUSCULARAUGMENTS
+
+        self.hydra_speed =                  AbilityId.RESEARCH_MUSCULARAUGMENTS         # Hydralisk Den Upgrades
         self.hydra_range =                  AbilityId.RESEARCH_GROOVEDSPINES
-        # Infestation Pit Upgrades
-        self.neural_parasite =              AbilityId.RESEARCH_NEURALPARASITE
-        # Ultralisk Cavern Upgrades
-        self.ultralisk_armor =              AbilityId.RESEARCH_CHITINOUSPLATING
+
+        self.neural_parasite =              AbilityId.RESEARCH_NEURALPARASITE           # Infestation Pit Upgrades
+
+        self.ultralisk_armor =              AbilityId.RESEARCH_CHITINOUSPLATING         # Ultralisk Cavern Upgrades
 
     def misc_variables(self):
         self.from_larva =                   {UnitTypeId.DRONE, UnitTypeId.OVERLORD, UnitTypeId.ZERGLING, UnitTypeId.ROACH, UnitTypeId.HYDRALISK, UnitTypeId.INFESTOR, UnitTypeId.SWARMHOSTMP,

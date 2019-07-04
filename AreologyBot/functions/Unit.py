@@ -3,25 +3,22 @@ from sc2.ids.ability_id import AbilityId as AbilID
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 
 class Unit:
+    async def retreat_scout(self):
+        for drone in self.drones:
+            damaged_drone = drone.health < 40
+            if damaged_drone and self.minutes < 2:
+                first_mineral_patch = self.state.mineral_field.closest_to(self.hatcheries.first.position)
+                self.actions.append(drone.gather(first_mineral_patch))
+
+        for overlord in self.overlords:
+            damaged_overlord = overlord.health < 200
+            if damaged_overlord or self.time / 60 >= 2.4:
+                # damaged overlord sent back home
+                self.actions.append(overlord.move(self.hatcheries.first.position))
+
     """
     Drone Functions
     """
-    # split workers as soon as the game starts
-    async def drone_split(self):
-        for drone in self.drones:
-            # find closest mineral patch
-            closest_mineral_patch = self.state.mineral_field.closest_to(drone)
-            self.actions.append(drone.gather(closest_mineral_patch))
-        # only do on_step every nth step, 8 is standard
-        self._client.game_step = 8
-
-    async def drone_scout_retreat(self):
-        for drone in self.drones:
-            damaged_drone = drone.health < 40
-            if damaged_drone and self.time / 60 < 2:
-                first_mineral_patch = self.state.mineral_field.closest_to(self.units(UnitID.HATCHERY).first.position)
-                self.actions.append(drone.gather(first_mineral_patch))
-
     async def fill_extractors(self):
         for extractor in self.extractors:
             # returns negative value if not enough workers
@@ -33,19 +30,6 @@ class Unit:
                         # prevent crash by only taking the minimum
                         drone = drones_with_no_minerals[min(n, drones_with_no_minerals.amount) - 1]
                         self.actions.append(drone.gather(extractor))
-    """
-    Overlord Functions
-    """
-    async def overlord_scout(self):
-        scouting_overlord = self.overlords[0]
-        self.actions.append(scouting_overlord.move(self.enemy_start_locations[0]))
-
-    async def overlord_scout_retreat(self):
-        for overlord in self.units(UnitID.OVERLORD):
-            damaged_overlord = overlord.health < 200
-            if damaged_overlord or self.time / 60 == 2.4:
-                # damaged overlord sent back home
-                self.actions.append(overlord.move(self.hatcheries.first.position))
     """
     Queen Functions
     """

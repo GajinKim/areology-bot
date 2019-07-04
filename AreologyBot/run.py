@@ -25,7 +25,7 @@ if __name__ == "__main__":
         race =          [Race.Random,Race.Terran, Race.Protoss, Race.Zerg]
         difficulty =    [Difficulty.Easy, Difficulty.Medium, Difficulty.Hard, Difficulty.VeryHard, Difficulty.CheatVision, Difficulty.CheatMoney, Difficulty.CheatInsane]
         build =         [sc2.AIBuild.RandomBuild, sc2.AIBuild.Rush, sc2.AIBuild.Timing, sc2.AIBuild.Power, sc2.AIBuild.Macro, sc2.AIBuild.Air]
-        # race, difficulty, build
+        # race, difficulty, build Variables
         enemy_bot =     sc2.player.Computer(race[0], difficulty[3], build[0])
 
         sc2.run_game(sc2.maps.get(random_map), [my_bot, enemy_bot],
