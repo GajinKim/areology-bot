@@ -49,7 +49,7 @@ class Unit:
             damaged_overlord = overlord.health < 200
             if damaged_overlord or self.time / 60 == 2.5:
                 # damaged overlord sent back home
-                self.actions.append(overlord.move(self.units(UnitID.HATCHERY).first.position))
+                self.actions.append(overlord.move(self.hatcheries.first.position))
     """
     Queen Functions
     """

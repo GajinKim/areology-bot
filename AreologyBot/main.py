@@ -11,8 +11,10 @@ from functions.Unit import *
 from functions.Build import *
 from functions.Train import *
 from functions.GlobalVariables import *
-from functions.BuildOrder import *
 
+import phases
+from phases.BuildOrder import BuildOrder
+from phases.RoachPush import RoachPush
 
 class AreologyBot(sc2.BotAI):
     def __init__(self):
@@ -55,14 +57,14 @@ class AreologyBot(sc2.BotAI):
             "MID GAME",
             "LATE GAME"
             ]
-        self.buildorder_step = 0
+        self.buildorder_step = 0 # incremented in BuildOrder
         # expansion we need to clear next, changed in 'send_idle_army'
         self.army_target = None
         # generator we need to cycle through expansions, created in 'send_units'
         self.clear_map = None
 
         """""""""""
-        initialize_global_variables()
+        Global Variables
         """""""""""
         # Building Variables
         self.hatcheries = self.lairs = self.hives = None
@@ -78,6 +80,11 @@ class AreologyBot(sc2.BotAI):
         self.armyUnits = self.droneSupply = self.armySupply = None
 
         """""""""""
+        Phase Variables
+        """""""""""
+        self.roach_push_started = []
+
+        """""""""""
         Production
         """""""""""
         self.pause_drone_production = []
@@ -87,25 +94,30 @@ class AreologyBot(sc2.BotAI):
     async def on_step(self, iteration):
         # Generic Setup
         self.initialize_global_variables()
-        await self.generic_mechanics()
 
         # Things to only do once at the very start of the game
         if iteration == 0:
             await self.on_game_start()
 
         # Determine what stage we are currently at
-        if self.buildorder[self.buildorder_step] != ("ROACH PUSH" or "MID GAME" or "LATE GAME"):
+        self.current_step = self.buildorder[self.buildorder_step]
+        if self.current_step != "ROACH PUSH" and self.current_step != "MID GAME" and self.current_step != "LATE GAME":
+            await self.generic_mechanics()
             await self.on_build_order()
-        if self.buildorder[self.buildorder_step] == "ROACH PUSH":
+        elif self.current_step == "ROACH PUSH":
+            await self.generic_mechanics()
             await self.on_roach_push()
-        if self.buildorder[self.buildorder_step] == "MID GAME":
+        elif self.current_step == "MID GAME":
+            await self.generic_mechanics()
             await self.on_mid_game()
-        if self.buildorder[self.buildorder_step] == "LATE GAME":
+        elif self.current_step == "LATE GAME":
+            await self.generic_mechanics()
             await self.on_late_game()
+
 
         # do list of actions of the current step
         await self.do_actions(self.actions)
-        # empty list to be ready for new actions in the next frame
+        # empty list for next frame
         self.actions = []
 
     """""""""""
@@ -135,6 +147,7 @@ class AreologyBot(sc2.BotAI):
 
     async def on_build_order(self):
         await BuildOrder.execute_build(self)
+
         await Unit.drone_scout_retreat(self)
         await Unit.overlord_scout_retreat(self)
 
@@ -143,16 +156,18 @@ class AreologyBot(sc2.BotAI):
     """""""""""
     # Condition: Build order is finished
     async def on_roach_push(self):
-        await Train.train_overlord(self)
-        await Train.rp_train_queen(self)
-        await Train.rp_train_army(self)
-        await Army.two_base_push(self)
+        await RoachPush.power_up(self)
+        await RoachPush.start_push(self)
+        await RoachPush.end_push(self)  # Ends RoachPush, Starts MidGame
+
+        "todo: refactor this later"
+        await Army.send_army_to_defend(self)
 
     """""""""""
     Non-Hard Coded Actions
     Priority: Upgrade > Build > Train > Army / Unit
     """""""""""
-    # Condition: 2 Base Roach Push is over
+    # Condition: Roach Push is over
     async def on_mid_game(self):
         await Build.hatch_tech_buildings(self)
         await Build.lair_tech_buildings(self)
@@ -160,8 +175,8 @@ class AreologyBot(sc2.BotAI):
         await Train.train_drone(self)
         await Train.mg_train_queen(self)
         await Train.mg_train_army(self)
-        await Army.sendUnitsToDefend(self)
-        await Army.sendUnitsToAttack(self)
+        await Army.send_army_to_attack(self)
+        await Army.send_army_to_defend(self)
         await Unit.micro_units(self)
 
     # Condition: Not set yet. (todo)
@@ -171,3 +186,5 @@ class AreologyBot(sc2.BotAI):
         await Build.hive_tech_buildings(self)
         await Train.train_overlord(self)
         await Train.train_drone(self)
+        await Army.send_army_to_attack(self)
+        await Army.send_army_to_defend(self)

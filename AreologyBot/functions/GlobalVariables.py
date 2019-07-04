@@ -114,3 +114,5 @@ class GlobalVariables:
         self.army_units =                   self.units.filter(lambda unit: unit.type_id in {UnitTypeId.ZERGLING, UnitTypeId.ROACH, UnitTypeId.HYDRALISK, UnitTypeId.OVERSEER})
         self.worker_supply =                self.units(UnitTypeId.DRONE).amount + self.already_pending(UnitTypeId.DRONE) + self.units(UnitTypeId.EXTRACTOR).ready.filter(lambda x:x.vespene_contents > 0).amount
         self.army_supply =                  self.supply_used - self.worker_supply
+
+        self.minutes = self.time / 60

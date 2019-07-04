@@ -22,7 +22,7 @@ class Build:
             return
         for hatch in self.townhalls.ready:
             for target_vespene in self.state.vespene_geyser.closer_than(10.0, hatch):
-                worker = self.select_build_worker(target_vespene)
+                worker = self.workers.closest_to(target_vespene)
                 self.actions.append(worker.build(UnitID.EXTRACTOR, target_vespene))
 
         # Build Spawning Pool
@@ -33,7 +33,7 @@ class Build:
         if self.spawning_pools.amount == 0:
             self.pause_army_production.append(True)
             self.pause_drone_production.append(True)
-            position = self.units(UnitID.HATCHERY).ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
+            position = self.hatcheries.ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.SPAWNINGPOOL, position))
             self.pause_army_production.append(False)

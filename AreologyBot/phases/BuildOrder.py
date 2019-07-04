@@ -8,28 +8,26 @@ class BuildOrder:
         # nothing costs less than 25 minerals (except deez nutz)
         if self.minerals < 25:
             return
-        # get current step
-        current_step = self.buildorder[self.buildorder_step]
         # check that we have enough resources to afford the current step
-        if not self.can_afford(current_step):
+        if not self.can_afford(self.current_step):
             return
 
         # steps that consume larva (drone, zergling, overlord)
-        if current_step in self.from_larva and self.larvae:
+        if self.current_step in self.from_larva and self.larvae:
             await BuildStep.step_larva_unit(self)
 
         # steps that don't consume larva
-        if current_step == UnitID.EXTRACTOR:
+        if self.current_step == UnitID.EXTRACTOR:
             await BuildStep.step_extractor(self)
-        if current_step == UnitID.HATCHERY:
+        if self.current_step == UnitID.HATCHERY:
             await BuildStep.step_hatchery(self)
-        if current_step == UnitID.SPAWNINGPOOL:
+        if self.current_step == UnitID.SPAWNINGPOOL:
             await BuildStep.step_spawning_pool(self)
-        if current_step == UnitID.ROACHWARREN:
+        if self.current_step == UnitID.ROACHWARREN:
             await BuildStep.step_roach_warren(self)
-        if current_step == UnitID.QUEEN:
+        if self.current_step == UnitID.QUEEN:
             await BuildStep.step_queen(self)
-        if current_step == AbilID.RESEARCH_ZERGLINGMETABOLICBOOST:
+        if self.current_step == AbilID.RESEARCH_ZERGLINGMETABOLICBOOST:
             await BuildStep.step_ling_speed(self)
 
 class BuildStep:

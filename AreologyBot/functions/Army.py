@@ -7,7 +7,7 @@ from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import Point2
 
 class Army:
-    async def sendUnitsToAttack(self):
+    async def send_army_to_attack(self):
         if self.supply_used < 190:
             return
         if self.supply_used >= 190:
@@ -26,7 +26,7 @@ class Army:
                 if self.units.closer_than(7, self.army_target):
                     self.army_target = next(self.clear_map)
                 # send all units
-                for unit in self.army:
+                for unit in self.army_units:
                     self.actions.append(unit.move(self.army_target))
             else:
                 # select only idle units, the other units have tasks already
@@ -37,7 +37,7 @@ class Army:
                     closest_enemy = ground_enemies.closest_to(unit)
                     self.actions.append(unit.attack(closest_enemy))
 
-    async def sendUnitsToDefend(self):
+    async def send_army_to_defend(self):
         if self.supply_used >= 190:
             return
         if self.supply_used < 190:
@@ -52,17 +52,3 @@ class Army:
                         self.actions.append(unit.attack(closest_enemy))
                     else:
                         return
-
-    async def two_base_push(self):
-        if self.time / 60 < 4.25:
-            return
-        if self.time / 60 >= 4.25:
-            # gather all idle army units
-            army_idle = self.army_units.idle
-            for unit in army_idle:
-                # issue an attack command to the enemy's main
-                self.actions.append(unit.attack(self.enemy_start_locations[0]))
-        # marks the end of the allin phase
-        if self.time / 60 >= 5.5:
-            await self.chat_send("(probe) starting the mid game! (probe)")
-            self.buildorder_step += 1   # ALLIN PHASE -> MACRO PHASE
