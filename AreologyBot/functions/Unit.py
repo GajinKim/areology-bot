@@ -47,7 +47,7 @@ class Unit:
     async def overlord_scout_retreat(self):
         for overlord in self.units(UnitID.OVERLORD):
             damaged_overlord = overlord.health < 200
-            if damaged_overlord or self.time / 60 == 2.5:
+            if damaged_overlord or self.time / 60 == 2.4:
                 # damaged overlord sent back home
                 self.actions.append(overlord.move(self.hatcheries.first.position))
     """
@@ -66,7 +66,7 @@ class Unit:
     """
     Army Micro Functions
     """
-    async def micro_units(self):
+    async def micro_units(self): # doesn't really work as intended, but sort of does
         # Roach Micro
         for roach in self.roaches:
             if roach.health < 30:

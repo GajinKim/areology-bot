@@ -77,7 +77,8 @@ class AreologyBot(sc2.BotAI):
         self.swarm_hosts = self.locusts = self.ultralisks = self.overlords = self.overseers = self.changelings = self.mutalisks = self.corruptors = self.vipers = self.brood_lords = self.broodlings = None
         # Misc. Variables
         self.from_larva = self.from_drone = None
-        self.armyUnits = self.droneSupply = self.armySupply = None
+        self.army_units = self.worker_supply = self.army_supply = None
+        self.known_enemy_ground_units = None
 
         """""""""""
         Phase Variables
@@ -159,7 +160,7 @@ class AreologyBot(sc2.BotAI):
     async def on_roach_push(self):
         await RoachPush.power_up(self)
         await RoachPush.start_push(self)
-        await RoachPush.end_push(self)  # Ends Roach Push. Starts Mid Game
+        await RoachPush.end_push(self)
 
     """""""""""
     Non-Hard Coded Actions
@@ -177,7 +178,7 @@ class AreologyBot(sc2.BotAI):
         await Army.send_army_to_defend(self)
         await Unit.micro_units(self)
 
-    # Condition: Not set yet. (todo)
+    # Condition: Not set yet. (todo) - i'll probably make the condition once hive finished
     async def on_late_game(self):
         await Build.hatch_tech_buildings(self)
         await Build.lair_tech_buildings(self)

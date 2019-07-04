@@ -11,10 +11,8 @@ class Army:
         if self.supply_used < 190:
             return
         if self.supply_used >= 190:
-            # we can only fight ground units and we dont want to fight larvae
-            ground_enemies = self.known_enemy_units.filter(lambda unit: not unit.is_flying and unit.type_id != UnitID.LARVA)
             # we dont see anything, go to enemy start location (only works on 2 player maps)
-            if not ground_enemies:
+            if not self.known_enemy_ground_units:
                 # if we didnt start to clear the map already
                 if not self.clear_map:
                     # start with enemy starting location, then cycle through all expansions
