@@ -11,7 +11,7 @@ from functions.Unit import *
 from functions.Build import *
 from functions.Train import *
 from functions.GlobalVariables import *
-from functions.execute_build.BuildOrder import BuildOrder
+from functions.BuildOrder import *
 
 
 class AreologyBot(sc2.BotAI):
@@ -93,7 +93,7 @@ class AreologyBot(sc2.BotAI):
         if iteration == 0:
             await self.on_game_start()
         # Determine what stage we are currently at
-        if self.buildorder_step_name != ("ROACH PUSH" or "MID GAME" or "LATE GAME" ):
+        if self.buildorder_step_name != ("ROACH PUSH" or "MID GAME" or "LATE GAME"):
             await self.on_build_order()
         elif self.buildorder_step_name == "ROACH PUSH":
             await self.on_roach_push()
@@ -102,8 +102,7 @@ class AreologyBot(sc2.BotAI):
         elif self.buildorder_step_name == "LATE GAME":
             await self.on_late_game()
 
-
-        await self.generic_mechanics()
+        # await self.generic_mechanics()
 
         # do list of actions of the current step
         await self.do_actions(self.actions)
@@ -143,6 +142,7 @@ class AreologyBot(sc2.BotAI):
     """""""""""
     Semi-Hard Coded Actions
     """""""""""
+    # Condition: Build order is finished
     async def on_roach_push(self):
         await Train.train_overlord(self)
         await Train.rp_train_queen(self)
@@ -153,6 +153,7 @@ class AreologyBot(sc2.BotAI):
     Non-Hard Coded Actions
     Priority: Upgrade > Build > Train > Army / Unit
     """""""""""
+    # Condition: 2 Base Roach Push is over
     async def on_mid_game(self):
         await Build.hatch_tech_buildings(self)
         await Build.lair_tech_buildings(self)
@@ -164,6 +165,7 @@ class AreologyBot(sc2.BotAI):
         await Army.sendUnitsToAttack(self)
         await Unit.micro_units(self)
 
+    # Condition: Not set yet. (todo)
     async def on_late_game(self):
         await Build.hatch_tech_buildings(self)
         await Build.lair_tech_buildings(self)
