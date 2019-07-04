@@ -13,8 +13,9 @@ from functions.Train import *
 from functions.GlobalVariables import *
 
 import phases
-from phases.BuildOrder import BuildOrder
-from phases.RoachPush import RoachPush
+from phases.BuildOrder  import BuildOrder
+from phases.RoachPush   import RoachPush
+from phases.MidGame     import MidGame
 
 class AreologyBot(sc2.BotAI):
     def __init__(self):
@@ -35,6 +36,7 @@ class AreologyBot(sc2.BotAI):
             UnitID.SPAWNINGPOOL,# 16/22
             UnitID.DRONE,       # 17/22
             UnitID.DRONE,       # 18/22
+            "SEND DRONE SCOUT", # 18/22
             UnitID.DRONE,       # 19/22
             UnitID.OVERLORD,    # 19/22
             UnitID.DRONE,       # 20/22
@@ -143,12 +145,11 @@ class AreologyBot(sc2.BotAI):
     """""""""""
     async def on_game_start(self):
         await Unit.drone_split(self)
-        await Unit.drone_scout(self)
         await Unit.overlord_scout(self)
         await self.chat_send("(glhf)")
 
     async def on_build_order(self):
-        await BuildOrder.execute_build(self)
+        await BuildOrder.start_build(self)
 
         await Unit.drone_scout_retreat(self)
         await Unit.overlord_scout_retreat(self)
@@ -156,7 +157,6 @@ class AreologyBot(sc2.BotAI):
     """""""""""
     Semi-Hard Coded Actions
     """""""""""
-    # Condition: Build order is finished
     async def on_roach_push(self):
         await RoachPush.power_up(self)
         await RoachPush.start_push(self)
@@ -166,17 +166,12 @@ class AreologyBot(sc2.BotAI):
     Non-Hard Coded Actions
     Priority: Upgrade > Build > Train > Army / Unit
     """""""""""
-    # Condition: Roach Push is over
     async def on_mid_game(self):
-        await Build.hatch_tech_buildings(self)
-        await Build.lair_tech_buildings(self)
-        await Train.train_overlord(self)
-        await Train.train_drone(self)
-        await Train.mg_train_queen(self)
-        await Train.mg_train_army(self)
-        await Army.send_army_to_attack(self)
-        await Army.send_army_to_defend(self)
-        await Unit.micro_units(self)
+        await MidGame.research_upgrades(self)
+        await MidGame.build_structures(self)
+        await MidGame.train_units(self)
+        await MidGame.army_control(self)
+        await MidGame.unit_micro(self)
 
     # Condition: Not set yet. (todo) - i'll probably make the condition once hive finished
     async def on_late_game(self):

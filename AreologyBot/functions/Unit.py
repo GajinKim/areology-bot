@@ -15,10 +15,6 @@ class Unit:
         # only do on_step every nth step, 8 is standard
         self._client.game_step = 8
 
-    async def drone_scout(self):
-        scouting_drone = self.drones[0]
-        self.actions.append(scouting_drone.attack(self.enemy_start_locations[0]))
-
     async def drone_scout_retreat(self):
         for drone in self.drones:
             damaged_drone = drone.health < 40

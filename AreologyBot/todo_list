@@ -11,4 +11,8 @@ implement Queen creep spread (possibly use legacy code)
 
 Add focus fire and stutter step micro
 
+Add upgrades
+
+Fix drone army building production algorithms past roach push
+
 ________________________________________________________________________________

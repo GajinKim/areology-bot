@@ -8,29 +8,16 @@ class RoachPush:
         await Train.rp_train_queen(self)
         await Train.rp_train_army(self)
 
-
-        if self.army_supply >= 35:
-            # gather all available army units
-            army = self.army_units.idle
-            for unit in army:
-                # issue an attack command towards the enemy's main
-                self.actions.append(unit.attack(self.enemy_start_locations[0]))
-            # Update Variable
-            if not self.roach_push_started:
-                self.roach_push_started.append(True)
-                await self.chat_send("starting roach push!")
-
     async def start_push(self):
         if self.army_supply >= 35:
             # Update Status
             if not self.roach_push_started:
                 self.roach_push_started.append(True)
                 await self.chat_send("starting roach push!")
-
             # Gather available army units
             army = self.army_units
             for unit in army:
-                # If we see a hostile enemy unit
+                # If we see enemy units
                 if self.known_enemy_ground_units:
                     enemy = self.known_enemy_ground_units.closest_to(unit)
                     self.actions.append(unit.attack(enemy))

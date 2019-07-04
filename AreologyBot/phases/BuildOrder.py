@@ -4,18 +4,16 @@ from sc2.ids.unit_typeid import UnitTypeId as UnitID
 from sc2.position import Point2
 
 class BuildOrder:
-    async def execute_build(self):
-        # nothing costs less than 25 minerals (except deez nutz)
-        if self.minerals < 25:
+    async def start_build(self):
+        # Determine if we can even execute the current step
+        if self.current_step == "SEND DRONE SCOUT":
+            await BuildStep.drone_scout(self)
+        elif not self.can_afford(self.current_step):
             return
-        # check that we have enough resources to afford the current step
-        if not self.can_afford(self.current_step):
-            return
-
+            
         # steps that consume larva (drone, zergling, overlord)
         if self.current_step in self.from_larva and self.larvae:
             await BuildStep.step_larva_unit(self)
-
         # steps that don't consume larva
         if self.current_step == UnitID.EXTRACTOR:
             await BuildStep.step_extractor(self)
@@ -31,6 +29,13 @@ class BuildOrder:
             await BuildStep.step_ling_speed(self)
 
 class BuildStep:
+    async def drone_scout(self):
+        scouting_drone = self.drones[0]
+        self.actions.append(scouting_drone.attack(self.enemy_start_locations[0]))
+        # print console log
+        print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
+        self.buildorder_step += 1
+
     async def step_larva_unit(self):
         current_step = self.buildorder[self.buildorder_step]
         self.actions.append(self.larvae.first.train(current_step))
