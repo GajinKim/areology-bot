@@ -7,7 +7,7 @@ class BuildStep:
         current_step = self.buildorder[self.buildorder_step]
         self.actions.append(self.larvae.first.train(current_step))
         # print console log
-        print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name} ")
+        print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
         self.buildorder_step += 1
 
     async def step_queen(self):
@@ -15,11 +15,11 @@ class BuildStep:
         # tech requirement check
         if not self.spawning_pool_finished:
             return
-        hatch = self.units(UnitID.HATCHERY).first
-        self.actions.append(hatch.train(UnitID.QUEEN))
-        # print console log
-        print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
-        self.buildorder_step += 1
+        for hatch in self.hatcheries.ready.idle:
+            self.actions.append(hatch.train(UnitID.QUEEN))
+            # print console log
+            print(f"{self.time_formatted} STEP {self.buildorder_step} {current_step.name}")
+            self.buildorder_step += 1
 
     async def step_ling_speed(self):
         current_step = self.buildorder[self.buildorder_step]

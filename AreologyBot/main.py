@@ -56,7 +56,7 @@ class AreologyBot(sc2.BotAI):
             "LATE GAME"
             ]
         self.buildorder_step = 0
-        self.buildorder_step_name = self.buildorder[self.build_order_phase]
+        self.buildorder_step_name = self.buildorder[self.buildorder_step]
         # expansion we need to clear next, changed in 'send_idle_army'
         self.army_target = None
         # generator we need to cycle through expansions, created in 'send_units'
@@ -86,24 +86,24 @@ class AreologyBot(sc2.BotAI):
         self.pause_army_production  = []
 
     async def on_step(self, iteration):
-        # initialize global variables
+        # Generic Setup
         self.initialize_global_variables()
-        # basic mechanics (macro and micro)
 
         # Things to only do once at the very start of the game
         if iteration == 0:
-            await self.game_start()
+            await self.on_game_start()
         # Determine what stage we are currently at
-        if self.buildorder_step_name != ("ROACH PUSH" or "MID GAME" or "LATE GAME" or "SUPREME LATE GAME"):
+        if self.buildorder_step_name != ("ROACH PUSH" or "MID GAME" or "LATE GAME" ):
             await self.on_build_order()
         elif self.buildorder_step_name == "ROACH PUSH":
             await self.on_roach_push()
         elif self.buildorder_step_name == "MID GAME":
-            await self.generic_mechanics()
             await self.on_mid_game()
         elif self.buildorder_step_name == "LATE GAME":
-            await self.generic_mechanics()
             await self.on_late_game()
+
+
+        await self.generic_mechanics()
 
         # do list of actions of the current step
         await self.do_actions(self.actions)
@@ -127,9 +127,9 @@ class AreologyBot(sc2.BotAI):
         await self.distribute_workers()
 
     """
-    Hard Coded Stages
+    Hard Coded Actions
     """
-    async def game_start(self):
+    async def on_game_start(self):
         await Unit.drone_split(self)
         await Unit.drone_scout(self)
         await Unit.overlord_scout(self)
@@ -141,7 +141,7 @@ class AreologyBot(sc2.BotAI):
         await Unit.overlord_scout_retreat(self)
 
     """""""""""
-    Priority: Upgrade > Build > Train > Army / Unit
+    Semi-Hard Coded Actions
     """""""""""
     async def on_roach_push(self):
         await Train.train_overlord(self)
@@ -149,6 +149,10 @@ class AreologyBot(sc2.BotAI):
         await Train.rp_train_army(self)
         await Army.two_base_push(self)
 
+    """""""""""
+    Non-Hard Coded Actions
+    Priority: Upgrade > Build > Train > Army / Unit
+    """""""""""
     async def on_mid_game(self):
         await Build.hatch_tech_buildings(self)
         await Build.lair_tech_buildings(self)

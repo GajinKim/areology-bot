@@ -31,8 +31,8 @@ class Train:
             return
         # Roach Push Queen Cap: 3
         if self.spawning_pool_finished and self.queen_count < 3:
-            hatch = self.hatcheries.first
-            self.actions.append(hatch.train(UnitID.QUEEN))
+            for hatch in self.hatcheries.ready.idle:
+                self.actions.append(hatch.train(UnitID.QUEEN))
 
     async def mg_train_queen(self):
         self.queen_count = self.queens.amount + self.already_pending(UnitID.QUEEN)
@@ -42,8 +42,8 @@ class Train:
         if self.spawning_pool_finished and self.queen_count < 6:
             # 1.5 Queens per Base
             if self.queen_count < 1.5 * self.townhalls.ready.amount:
-                hatch = self.hatcheries.first
-                self.actions.append(hatch.train(UnitID.QUEEN))
+                for hatch in self.hatcheries.ready.idle:
+                    self.actions.append(hatch.train(UnitID.QUEEN))
 
     async def lg_train_queen(self):
         self.queen_count = self.queens.amount + self.already_pending(UnitID.QUEEN)
@@ -53,8 +53,8 @@ class Train:
         if self.spawning_pool_finished and self.queen_count < 12:
             # 2 Queens per Base
             if self.queen_count < 2 * self.townhalls.ready.amount:
-                hatch = self.hatcheries.first
-                self.actions.append(hatch.train(UnitID.QUEEN))
+                for hatch in self.hatcheries.ready.idle:
+                    self.actions.append(hatch.train(UnitID.QUEEN))
     """
     Army Production
     """
