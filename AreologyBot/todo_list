@@ -15,4 +15,10 @@ Add upgrades
 
 Fix drone army building production algorithms past roach push
 
+Make a new variable where i store scouting information
+
 ________________________________________________________________________________
+
+NOTES:
+
+use len() instead of .amount from now on (apparently it's faster)

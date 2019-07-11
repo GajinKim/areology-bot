@@ -18,7 +18,7 @@ class MidGame:
     async def train_units(self):
         await Train.train_overlord(self)
         await Train.train_drone(self)
-        await Train.mg_train_queen(self)
+        await Train.train_queen(self)
         await Train.mg_train_army(self)
 
     async def army_control(self):

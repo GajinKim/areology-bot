@@ -69,7 +69,6 @@ class Variables:
         self.brood_lings =                  self.units(UnitTypeId.BROODLING)
 
     def upgrade_variables(self):
-
         self.melee_attacks_1 =              AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL1   # Evolution Chamber Upgrades
         self.melee_attacks_2 =              AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL2
         self.melee_attacks_3 =              AbilityId.RESEARCH_ZERGMELEEWEAPONSLEVEL3

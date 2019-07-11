@@ -25,36 +25,16 @@ class Train:
     """
     Queen Production
     """
-    async def rp_train_queen(self):
+    async def train_queen(self):
         self.queen_count = self.queens.amount + self.already_pending(UnitID.QUEEN)
+        self.queen_cap = min(len(self.townhalls) * 1.5, 12);
         if self.minerals < 150 or self.pause_queen_production:
             return
-        # Roach Push Queen Cap: 3
-        if self.spawning_pool_finished and self.queen_count < 3:
+        # Soft Cap is num of hatcheries * 1.5
+        # Hard Cap is 12
+        if self.spawning_pool_finished and self.queen_count < self.queen_cap :
             for hatch in self.hatcheries.ready.idle:
                 self.actions.append(hatch.train(UnitID.QUEEN))
-
-    async def mg_train_queen(self):
-        self.queen_count = self.queens.amount + self.already_pending(UnitID.QUEEN)
-        if self.minerals < 150 or self.pause_queen_production:
-            return
-        # Mid Game Queen Cap: 6
-        if self.spawning_pool_finished and self.queen_count < 6:
-            # 1.5 Queens per Base
-            if self.queen_count < 1.5 * self.townhalls.ready.amount:
-                for hatch in self.hatcheries.ready.idle:
-                    self.actions.append(hatch.train(UnitID.QUEEN))
-
-    async def lg_train_queen(self):
-        self.queen_count = self.queens.amount + self.already_pending(UnitID.QUEEN)
-        if self.minerals < 150 or self.pause_queen_production:
-            return
-        # Late Game Queen Cap: 12
-        if self.spawning_pool_finished and self.queen_count < 12:
-            # 2 Queens per Base
-            if self.queen_count < 2 * self.townhalls.ready.amount:
-                for hatch in self.hatcheries.ready.idle:
-                    self.actions.append(hatch.train(UnitID.QUEEN))
     """
     Army Production
     """

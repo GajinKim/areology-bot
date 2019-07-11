@@ -5,7 +5,7 @@ from functions.Unit import *
 class RoachPush:
     async def power_up(self):
         await Train.train_overlord(self)
-        await Train.rp_train_queen(self)
+        await Train.train_queen(self)
         await Train.rp_train_army(self)
 
     async def start_push(self):

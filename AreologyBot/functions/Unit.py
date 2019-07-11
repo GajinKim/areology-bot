@@ -30,6 +30,7 @@ class Unit:
                         # prevent crash by only taking the minimum
                         drone = drones_with_no_minerals[min(n, drones_with_no_minerals.amount) - 1]
                         self.actions.append(drone.gather(extractor))
+      
     """
     Queen Functions
     """
@@ -43,6 +44,7 @@ class Unit:
             if AbilID.EFFECT_INJECTLARVA in abilities:
                 hatch = self.units(UnitID.HATCHERY).first
                 self.actions.append(queen(AbilID.EFFECT_INJECTLARVA, hatch))
+
     """
     Army Micro Functions
     """
