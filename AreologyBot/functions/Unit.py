@@ -3,19 +3,6 @@ from sc2.ids.ability_id import AbilityId as AbilID
 from sc2.ids.unit_typeid import UnitTypeId as UnitID
 
 class Unit:
-    async def retreat_scout(self):
-        for drone in self.drones:
-            damaged_drone = drone.health < 40
-            if damaged_drone and self.minutes < 2:
-                first_mineral_patch = self.state.mineral_field.closest_to(self.hatcheries.first.position)
-                self.actions.append(drone.gather(first_mineral_patch))
-
-        for overlord in self.overlords:
-            damaged_overlord = overlord.health < 200
-            if damaged_overlord or self.time / 60 >= 2.4:
-                # damaged overlord sent back home
-                self.actions.append(overlord.move(self.hatcheries.first.position))
-
     """
     Drone Functions
     """
@@ -30,7 +17,7 @@ class Unit:
                         # prevent crash by only taking the minimum
                         drone = drones_with_no_minerals[min(n, drones_with_no_minerals.amount) - 1]
                         self.actions.append(drone.gather(extractor))
-      
+
     """
     Queen Functions
     """

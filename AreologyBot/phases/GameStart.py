@@ -11,9 +11,5 @@ class GameStart:
         # only do on_step every nth step, 8 is standard
         self._client.game_step = 8
 
-    async def overlord_scout(self):
-        scouting_overlord = self.overlords[0]
-        self.actions.append(scouting_overlord.move(self.enemy_start_locations[0]))
-
     async def greeting(self):
         await self.chat_send("(glhf)")

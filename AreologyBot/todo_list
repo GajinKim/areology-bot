@@ -17,6 +17,8 @@ Fix drone army building production algorithms past roach push
 
 Make a new variable where i store scouting information
 
+fix spine crawler placement location to natural base or closest to enemy main in BuildOrder.py
+
 ________________________________________________________________________________
 
 NOTES:

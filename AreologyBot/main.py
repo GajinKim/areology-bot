@@ -9,6 +9,7 @@ from functions.Army         import Army
 from functions.Unit         import Unit
 from functions.Build        import Build
 from functions.Train        import Train
+from functions.Scouting     import Scouting
 from functions.Variables    import Variables
 
 import phases
@@ -23,6 +24,7 @@ class AreologyBot(sc2.BotAI):
         self.actions = []
         # 2 base roach push build order
         self.buildorder = [
+            "OVERLORD SCOUT",
             UnitID.DRONE,       # 13/14
             UnitID.OVERLORD,    # 13/14
             UnitID.DRONE,       # 14/14
@@ -32,11 +34,11 @@ class AreologyBot(sc2.BotAI):
             UnitID.HATCHERY,    # 16/22
             UnitID.DRONE,       # 17/22
             UnitID.DRONE,       # 18/22
+            "DRONE SCOUT",
             UnitID.EXTRACTOR,   # 17/22
             UnitID.SPAWNINGPOOL,# 16/22
             UnitID.DRONE,       # 17/22
             UnitID.DRONE,       # 18/22
-            "DRONE SCOUT",      # 18/22
             UnitID.DRONE,       # 19/22
             UnitID.OVERLORD,    # 19/22
             UnitID.DRONE,       # 20/22
@@ -79,6 +81,15 @@ class AreologyBot(sc2.BotAI):
         self.pause_queen_production = []
         self.pause_army_production  = []
 
+        """""""""""
+        Scouting
+        """""""""""
+        self.drone_scout_retreated      = []
+        self.overlord_scout_retreated   = []
+        self.enemy_race         = []
+        self.enemy_structures   = []
+        self.enemy_cheesing     = []
+
     async def on_step(self, iteration):
         # Update variables on each step
         self.initialize_variables()
@@ -116,21 +127,25 @@ class AreologyBot(sc2.BotAI):
         Variables.misc_variables(self)
 
     async def generic_mechanics(self):
-        # generic macro functions
-        await Army.send_army_to_defend(self)
+        # macro
+        await self.distribute_workers()
         await Unit.fill_extractors(self)
         await Unit.inject(self)
+        await Unit.inject(self)
+        # micro
+        await Army.send_army_to_defend(self)
         await Unit.micro_units(self)
-        await self.distribute_workers()
-        # todo - fix this stuff (maybe implement a new class for scouting)
-        await Unit.retreat_scout(self)
+        # scouting / information
+        await Scouting.retreat_drone_scout(self)
+        await Scouting.retreat_overlord_scout(self)
+        await Scouting.return_enemy_race(self)
+        await Scouting.return_enemy_cheesing(self)
 
     """""""""""
     Hard Coded Phases
     """""""""""
     async def on_game_start(self):
         await GameStart.worker_split(self)
-        await GameStart.overlord_scout(self)
         await GameStart.greeting(self)
 
     async def on_build_order(self):
