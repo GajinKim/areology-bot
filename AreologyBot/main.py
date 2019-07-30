@@ -16,7 +16,9 @@ import phases
 from phases.GameStart       import GameStart
 from phases.BuildOrder      import BuildOrder
 from phases.RoachPush       import RoachPush
-from phases.MidGame         import MidGame
+from phases.MacroPhase      import HatchTech
+from phases.MacroPhase      import LairTech
+from phases.MacroPhase      import HiveTech
 
 class AreologyBot(sc2.BotAI):
     def __init__(self):
@@ -24,7 +26,6 @@ class AreologyBot(sc2.BotAI):
         self.actions = []
         # 2 base roach push build order
         self.buildorder = [
-            "OVERLORD SCOUT",
             UnitID.DRONE,       # 13/14
             UnitID.OVERLORD,    # 13/14
             UnitID.DRONE,       # 14/14
@@ -58,8 +59,7 @@ class AreologyBot(sc2.BotAI):
             UnitID.DRONE,       # 32
             UnitID.OVERLORD,    # 32
             "ROACH PUSH",
-            "MID GAME",
-            "LATE GAME"
+            "BUILD OVER",
             ]
         self.buildorder_step = 0 # incremented in BuildOrder
         # expansion we need to clear next, changed in 'send_idle_army'
@@ -99,18 +99,23 @@ class AreologyBot(sc2.BotAI):
         if iteration == 0:
             await self.on_game_start()
         # Determine what stage we are currently at
-        if self.current_step != "ROACH PUSH" and self.current_step != "MID GAME" and self.current_step != "LATE GAME":
+
+        # Build Order
+        if not self.hive_finished and not self.lair_finished and self.current_step != "ROACH PUSH" and self.current_step != "BUILD OVER":
             await self.generic_mechanics()
             await self.on_build_order()
-        elif self.current_step == "ROACH PUSH":
+        elif self.hive_finished:
+            await self.generic_mechanics()
+            await self.on_hive_algorithm()
+        elif self.lair_finished:
+            await self.generic_mechanics()
+            await self.on_lair_algorithm()
+        elif self.current_step != "ROACH PUSH":
+            await self.generic_mechanics()
+            await self.on_hatch_algorithm()
+        else:
             await self.generic_mechanics()
             await self.on_roach_push()
-        elif self.current_step == "MID GAME":
-            await self.generic_mechanics()
-            await self.on_mid_game()
-        elif self.current_step == "LATE GAME":
-            await self.generic_mechanics()
-            await self.on_late_game()
 
         # do list of actions of the current step
         await self.do_actions(self.actions)
@@ -151,7 +156,7 @@ class AreologyBot(sc2.BotAI):
         await BuildOrder.start_build(self)
 
     """""""""""
-    Semi-Hard Coded Phase
+    Soft Coded Phases
     """""""""""
     async def on_roach_push(self):
         await RoachPush.power_up(self)
@@ -159,22 +164,26 @@ class AreologyBot(sc2.BotAI):
         await RoachPush.end_push(self)
 
     """""""""""
-    Non-Hard Coded Phases
+    Conditional (Macro) Phases
     Priority: Research > Build > Train > Army > Unit
     """""""""""
-    async def on_mid_game(self):
-        await MidGame.research_upgrades(self)
-        await MidGame.build_structures(self)
-        await MidGame.train_units(self)
-        await MidGame.army_control(self)
-        await MidGame.unit_micro(self)
+    async def on_hatch_algorithm(self):
+        await HatchTech.research_upgrades(self)
+        await HatchTech.build_structures(self)
+        await HatchTech.train_units(self)
+        await HatchTech.army_control(self)
+        await HatchTech.unit_micro(self)
 
-    # Condition: Not set yet. (todo) - i'll probably make the condition once hive finished
-    async def on_late_game(self):
-        await Build.hatch_tech_buildings(self)
-        await Build.lair_tech_buildings(self)
-        await Build.hive_tech_buildings(self)
-        await Train.train_overlord(self)
-        await Train.train_drone(self)
-        await Army.send_army_to_attack(self)
-        await Army.send_army_to_defend(self)
+    async def on_lair_algorithm(self):
+        await LairTech.research_upgrades(self)
+        await LairTech.build_structures(self)
+        await LairTech.train_units(self)
+        await LairTech.army_control(self)
+        await LairTech.unit_micro(self)
+
+    async def on_hive_algorithm(self):
+        await HiveTech.research_upgrades(self)
+        await HiveTech.build_structures(self)
+        await HiveTech.train_units(self)
+        await HiveTech.army_control(self)
+        await HiveTech.unit_micro(self)

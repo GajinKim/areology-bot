@@ -16,7 +16,7 @@ class BuildOrder:
             await BuildStep.drone_scout(self)
         else:
             # determine if we can even execute the current step
-            if self.current_step == "MID GAME" or not self.can_afford(self.current_step):
+            if self.current_step == "BUILD OVER" or not self.can_afford(self.current_step):
                 return
 
             # steps that consume larva (drone, zergling, overlord)
@@ -42,7 +42,7 @@ class BuildStep:
         # if we manage to build 10 zerglings, we can assume the push has been held
         if self.zerglings.amount >= 10 and self.spine_crawlers.amount >= 2:
             self.enemy_cheesing.append(False)
-            self.buildorder_step = 34 # current_step is "MID GAME"
+            self.buildorder_step = 33 # step 33 = "BUILD OVER"
             await self.chat_send("Transitioning to Mid Game Algorithm")
         # prioritize building spine crawlers
         elif self.spine_crawlers.amount < 2:

@@ -24,8 +24,7 @@ class Scouting:
         else:
             for overlord in self.overlords:
                 damaged_overlord = overlord.health < 200
-                enemy_base = len(self.known_enemy_structures(UnitID.COMMANDCENTER)) + len(self.known_enemy_structures(UnitID.HATCHERY)) + len(self.known_enemy_structures(UnitID.NEXUS)) > 0
-                if damaged_overlord or enemy_base:
+                if damaged_overlord:
                     # damaged overlord sent back home
                     self.actions.append(overlord.move(self.hatcheries.first.position))
                     self.overlord_scout_retreated.append(True)
@@ -55,7 +54,7 @@ class Scouting:
                 self.enemy_race = Race.Protoss
 
     async def return_enemy_cheesing(self):
-        if self.enemy_cheesing or self.current_step == "ROACH PUSH" or self.current_step == "MID GAME" or self.current_step == "LATE GAME":
+        if self.enemy_cheesing or self.current_step == "BUILD OVER":
             return
         if self.enemy_race == Race.Terran:
             # scenario 1: late / no expansion
