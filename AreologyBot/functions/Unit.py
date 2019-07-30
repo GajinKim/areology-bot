@@ -35,7 +35,7 @@ class Unit:
     """
     Army Micro Functions
     """
-    async def micro_units(self): # doesn't really work as intended, but sort of does
+    async def micro_units(self): # doesn't really work as intended, fix it later
         # Roach Micro
         for roach in self.roaches:
             if roach.health < 30:

@@ -40,19 +40,21 @@ class BuildStep:
     # Works for now, maybe move anti-cheese algorithm to its own class (or sub-class) later on.
     async def versus_cheese(self):
         # if we manage to build 10 zerglings, we can assume the push has been held
-        if self.zerglings.amount > 10:
+        if self.zerglings.amount >= 10 and self.spine_crawlers.amount >= 2:
             self.enemy_cheesing.append(False)
-            self.buildorder_step = 34
-            self.current_step = "MID GAME"
-        else:
-            if self.spine_crawlers.amount < 2:
-                buildings_around = self.units(UnitID.HATCHERY).first.position.towards(self.main_base_ramp.depot_in_middle, 7)
-                position = await self.find_placement(building=UnitID.SPINECRAWLER, near=buildings_around, placement_step=4)
-                # closest worker builds spine crawler
-                worker = self.workers.closest_to(position)
-                self.actions.append(worker.build(UnitID.SPINECRAWLER, position))
-            elif self.larvae and self.minerals > 50:
-                self.actions.append(self.larvae.first.train(UnitID.ZERGLING))
+            self.buildorder_step = 34 # current_step is "MID GAME"
+            await self.chat_send("Transitioning to Mid Game Algorithm (woof)")
+        # prioritize building spine crawlers
+        elif self.spine_crawlers.amount < 2:
+            buildings_around = self.units(UnitID.HATCHERY).first.position.towards(self.main_base_ramp.depot_in_middle, 7) # todo: proper location of spine crawler build
+            position = await self.find_placement(building=UnitID.SPINECRAWLER, near=buildings_around, placement_step=4)
+            # closest worker builds spine crawler
+            worker = self.workers.closest_to(position)
+            self.actions.append(worker.build(UnitID.SPINECRAWLER, position))
+        # extra resources are poured into zerglings
+        elif self.larvae and self.minerals > 50:
+            self.actions.append(self.larvae.first.train(UnitID.ZERGLING))
+            return
 
     async def drone_scout(self):
         scouting_drone = self.drones[0]
