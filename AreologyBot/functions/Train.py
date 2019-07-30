@@ -7,10 +7,10 @@ class Train:
     Production
     """
     async def train_drone(self):
-        self.worker_cap = min(22 *(len(self.townhalls) + 10 * self.already_pending(UnitID.HATCHERY), 80))
+        self.worker_cap = min(22 *(len(self.townhalls) + 6 * self.already_pending, 80))
         if self.minerals < 50 or self.pause_drone_production:
             return
-        # Soft Cap is num of hatcheries * 22
+        # Soft Cap is num of hatcheries * 22 + building hatcheries * 6
         # Hard Cap is 80
         if self.larvae and self.worker_supply < self.worker_cap:
             self.actions.append(self.larvae.first.train(UnitID.DRONE))
@@ -48,7 +48,7 @@ class Train:
                 self.actions.append(self.larvae.first.train(UnitID.ZERGLING))
 
     async def hatch_train_army(self):
-        if self.minerals < 50 or self.pause_army_production:
+        if self.minerals < 50 or self.pause_army_production or self.army_supply > self.worker_supply / 1.5:
             return
         # If we somehow end up with less than 15 drones, priotize workers
         if self.larvae and self.worker_supply < 15:
