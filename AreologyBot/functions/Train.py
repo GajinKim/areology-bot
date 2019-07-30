@@ -7,7 +7,7 @@ class Train:
     Production
     """
     async def train_drone(self):
-        self.worker_cap = min(22 * len(self.townhalls), 80)
+        self.worker_cap = min(22 *(len(self.townhalls) + 10 * self.already_pending(UnitID.HATCHERY), 80))
         if self.minerals < 50 or self.pause_drone_production:
             return
         # Soft Cap is num of hatcheries * 22
