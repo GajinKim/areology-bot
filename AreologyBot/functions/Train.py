@@ -7,14 +7,13 @@ class Train:
     Production
     """
     async def train_drone(self):
-        # drones cost 50 minerals
-        if self.minerals < 50 or self.pause_drone_production or self.worker_supply * 1.25 > self.army_supply:
+        self.worker_cap = min(22 * len(self.hatcheries) + len(self.lairs) + len(self.hives), 80)
+        if self.minerals < 50 or self.pause_drone_production or self.worker_supply * 2 > self.army_supply:
             return
-        # train up to 80 drones
-        if self.larvae and self.supply_workers < 80:
-            # train up to 22 drones per base
-            if self.worker_supply < 22 * self.townhalls.amount:
-                self.actions.append(self.larvae.first.train(UnitID.DRONE))
+        # Soft Cap is num of hatcheries * 22
+        # Hard Cap is 80
+        if self.larvae and self.worker_supply < self.worker_cap:
+            self.actions.append(self.larvae.first.train(UnitID.DRONE))
 
     async def train_overlord(self):
         if self.minerals < 100:
@@ -32,7 +31,7 @@ class Train:
             return
         # Soft Cap is num of hatcheries * 1.5
         # Hard Cap is 12
-        if self.spawning_pool_finished and self.queen_count < self.queen_cap :
+        if self.spawning_pool_finished and self.queen_count < self.queen_cap:
             for hatch in self.hatcheries.ready.idle:
                 self.actions.append(hatch.train(UnitID.QUEEN))
     """

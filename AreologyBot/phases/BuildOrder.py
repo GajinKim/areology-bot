@@ -43,7 +43,7 @@ class BuildStep:
         if self.zerglings.amount >= 10 and self.spine_crawlers.amount >= 2:
             self.enemy_cheesing.append(False)
             self.buildorder_step = 34 # current_step is "MID GAME"
-            await self.chat_send("Transitioning to Mid Game Algorithm (woof)")
+            await self.chat_send("Transitioning to Mid Game Algorithm")
         # prioritize building spine crawlers
         elif self.spine_crawlers.amount < 2:
             buildings_around = self.units(UnitID.HATCHERY).first.position.towards(self.main_base_ramp.depot_in_middle, 7) # todo: proper location of spine crawler build
@@ -51,10 +51,9 @@ class BuildStep:
             # closest worker builds spine crawler
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.SPINECRAWLER, position))
-        # extra resources are poured into zerglings
+        # pour extra resources into zerglings
         elif self.larvae and self.minerals > 50:
             self.actions.append(self.larvae.first.train(UnitID.ZERGLING))
-            return
 
     async def drone_scout(self):
         scouting_drone = self.drones[0]

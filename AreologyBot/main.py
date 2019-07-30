@@ -131,7 +131,6 @@ class AreologyBot(sc2.BotAI):
         await self.distribute_workers()
         await Unit.fill_extractors(self)
         await Unit.inject(self)
-        await Unit.inject(self)
         # micro
         await Army.send_army_to_defend(self)
         await Unit.micro_units(self)

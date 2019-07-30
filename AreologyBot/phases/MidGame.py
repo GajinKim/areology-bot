@@ -16,8 +16,8 @@ class MidGame:
         await Build.lair_tech_buildings(self)
 
     async def train_units(self):
-        await Train.train_overlord(self)
         await Train.train_drone(self)
+        await Train.train_overlord(self)
         await Train.train_queen(self)
         await Train.mg_train_army(self)
 

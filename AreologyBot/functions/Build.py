@@ -11,7 +11,7 @@ class Build:
         # Build Hatchery
         if self.minerals < 300:
             return
-        self.hatch_limit = self.supply_workers / 20
+        self.hatch_limit = self.worker_supply / 20
         if not self.already_pending(UnitID.HATCHERY) and self.hatcheries.amount < self.hatch_limit:
             self.pause_army_production.append(True)
             await self.expand_now()
@@ -20,10 +20,11 @@ class Build:
         # Build Extractor
         if self.minerals < 25:
             return
-        for hatch in self.townhalls.ready:
-            for target_vespene in self.state.vespene_geyser.closer_than(10.0, hatch):
-                worker = self.workers.closest_to(target_vespene)
-                self.actions.append(worker.build(UnitID.EXTRACTOR, target_vespene))
+        if len(self.extractors) / 2 + 2 <= len(self.hatcheries) or self.lairs.exists:
+            for hatch in self.hatcheries.ready:
+                for target_vespene in self.state.vespene_geyser.closer_than(10.0, hatch):
+                    worker = self.workers.closest_to(target_vespene)
+                    self.actions.append(worker.build(UnitID.EXTRACTOR, target_vespene))
 
         # Build Spawning Pool
         if self.minerals < 200:
@@ -98,7 +99,7 @@ class Build:
             self.pause_army_production.append(False)
 
     async def hive_tech_buildings(self):
-        #Upgrade to Hive
+        # Upgrade to Hive
         if self.minerals < 200 or self.vespene < 150 or self.hatcheries.amount < 4:
             return
         if self.hives == 0 and self.infestation_pits and self.units(UnitID.LAIR).idle:

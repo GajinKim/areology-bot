@@ -11,7 +11,7 @@ my_bot = sc2.player.Bot(Race.Zerg, AreologyBot())
 # Run Simulation
 if __name__ == "__main__":
     if "--LadderServer" in sys.argv:
-        print ("Starting a ladder game ")
+        print("Starting a ladder game ")
         result, opponentid = run_ladder_game(my_bot)
         print(f"{result} against opponent {opponentid}")
     else:
