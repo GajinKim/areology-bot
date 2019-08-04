@@ -21,7 +21,6 @@ class Build:
             return
         self.hatch_limit = min(self.worker_supply / 20 + 1, 4)
         if not self.already_pending(UnitID.HATCHERY) and len(self.townhalls) < self.hatch_limit:
-            self.pause_army_production.append(True)
             await self.expand_now()
 
         # Build Extractor
@@ -35,28 +34,35 @@ class Build:
 
         # Build Spawning Pool
         if len(self.spawning_pools) + self.already_pending(UnitID.SPAWNINGPOOL) == 0:
-            self.pause_army_production.append(True)
-            self.pause_queen_production.append(True)
+            self.pause_drone_production = True
+            self.pause_army_production = True
+            self.pause_queen_production = True
             buildings_around = self.townhalls.ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
             position = await self.find_placement(building=UnitID.SPAWNINGPOOL, near=buildings_around, placement_step=4)
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.SPAWNINGPOOL, position))
 
         # Build Roach Warren
-        if len(self.roach_warrens) + self.already_pending(UnitID.ROACHWARREN) == 0:
-            self.pause_army_production.append(True)
-            self.pause_queen_production.append(True)
+        # Tech Requirements
+        if not self.spawning_pool_finished:
+            return
+        # Extra Requirements: at least 28 workers
+        if len(self.roach_warrens) + self.already_pending(UnitID.ROACHWARREN) == 0 and self.worker_supply > 28:
+            await self.chat_send(str(self.pause_drone_production))
+            self.pause_drone_production = True
+            self.pause_army_production = True
+            self.pause_queen_production = True
             buildings_around = self.townhalls.ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
             position = await self.find_placement(building=UnitID.ROACHWARREN, near=buildings_around, placement_step=4)
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.ROACHWARREN, position))
 
         # Build Evolution Chamber
-        # Primary check = hatch count must be at least 3
+        # Extra Requirements: at least 3 bases
         if not self.can_afford(UnitID.EVOLUTIONCHAMBER) or len(self.townhalls) < 3:
             return
         if len(self.evolution_chambers) + self.already_pending(UnitID.EVOLUTIONCHAMBER) < 2:
-            self.pause_army_production.append(True)
+            self.pause_army_production = True
             buildings_around = self.townhalls.ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
             position = await self.find_placement(building=UnitID.EVOLUTIONCHAMBER, near=buildings_around, placement_step=4)
             worker = self.workers.closest_to(position)
@@ -74,8 +80,9 @@ class Build:
         #     self.pause_army_production.append(False)
         #     self.pause_queen_production.append(False)
 
-        self.pause_army_production.append(False)
-        self.pause_queen_production.append(False)
+        self.pause_drone_production = False
+        self.pause_army_production = False
+        self.pause_queen_production = False
     """
     Lair Tech Buildings
     """
