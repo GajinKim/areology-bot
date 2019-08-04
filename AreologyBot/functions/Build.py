@@ -11,16 +11,18 @@ LEGEND
 Primary Check = Non tech requirements that mandate the production of a building
 """
 class Build:
+    """
+    Hatch Tech Buildings
+    """
     async def hatch_tech_buildings(self):
-        # Build Hatchery\
-        # Primary Check = must have less than 1 : 20 hatch to drone ratio
+        # Build Hatchery
+        # Primary Check = minutes elapsed is cap
         if not self.can_afford(UnitID.HATCHERY):
             return
-        self.hatch_limit = self.worker_supply / 20
+        self.hatch_limit = min(self.worker_supply / 20 + 1, 4)
         if not self.already_pending(UnitID.HATCHERY) and len(self.townhalls) < self.hatch_limit:
             self.pause_army_production.append(True)
             await self.expand_now()
-            self.pause_army_production.append(False)
 
         # Build Extractor
         if not self.can_afford(UnitID.EXTRACTOR):
@@ -34,26 +36,20 @@ class Build:
         # Build Spawning Pool
         if len(self.spawning_pools) + self.already_pending(UnitID.SPAWNINGPOOL) == 0:
             self.pause_army_production.append(True)
-            self.pause_drone_production.append(True)
             self.pause_queen_production.append(True)
-            position = self.units(UnitID.HATCHERY).ready.first.position.towards(self.game_info.map_center, 7)
+            buildings_around = self.townhalls.ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
+            position = await self.find_placement(building=UnitID.SPAWNINGPOOL, near=buildings_around, placement_step=4)
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.SPAWNINGPOOL, position))
-            self.pause_army_production.append(False)
-            self.pause_drone_production.append(False)
-            self.pause_queen_production.append(False)
 
         # Build Roach Warren
         if len(self.roach_warrens) + self.already_pending(UnitID.ROACHWARREN) == 0:
             self.pause_army_production.append(True)
-            self.pause_drone_production.append(True)
             self.pause_queen_production.append(True)
-            position = self.units(UnitID.HATCHERY).ready.first.position.towards(self.game_info.map_center, 7)
+            buildings_around = self.townhalls.ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
+            position = await self.find_placement(building=UnitID.ROACHWARREN, near=buildings_around, placement_step=4)
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.ROACHWARREN, position))
-            self.pause_army_production.append(False)
-            self.pause_drone_production.append(False)
-            self.pause_queen_production.append(False)
 
         # Build Evolution Chamber
         # Primary check = hatch count must be at least 3
@@ -61,30 +57,36 @@ class Build:
             return
         if len(self.evolution_chambers) + self.already_pending(UnitID.EVOLUTIONCHAMBER) < 2:
             self.pause_army_production.append(True)
-            position = self.units(UnitID.HATCHERY).ready.first.position.towards(self.game_info.map_center, 7)
+            buildings_around = self.townhalls.ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
+            position = await self.find_placement(building=UnitID.EVOLUTIONCHAMBER, near=buildings_around, placement_step=4)
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.EVOLUTIONCHAMBER, position))
-            self.pause_army_production.append(False)
 
         # Upgrade to Lair
         # Primary check = hatch count must be at least 3
-        if not self.can_afford(UnitID.LAIR) or len(self.townhalls) < 3:
-            return
-        if len(self.lairs) == 0 and self.spawning_pool_finished and self.hatcheries.idle:
-            self.pause_army_production.append(True)
-            self.pause_queen_production.append(True)
-            hatch = self.units(UnitID.HATCHERY).first
-            self.actions.append(hatch(AbilID.UPGRADETOLAIR_LAIR))
-            self.pause_army_production.append(False)
-            self.pause_queen_production.append(False)
+        # if not self.can_afford(UnitID.LAIR) or len(self.townhalls) < 3 or not self.hatcheries.idle:
+        #     return
+        # if len(self.lairs) + self.already_pending(UnitID.LAIR) == 0 and self.spawning_pool_finished:
+        #     self.pause_army_production.append(True)
+        #     self.pause_queen_production.append(True)
+        #     hatch = self.units(UnitID.HATCHERY).first
+        #     self.actions.append(hatch(AbilID.UPGRADETOLAIR_LAIR))
+        #     self.pause_army_production.append(False)
+        #     self.pause_queen_production.append(False)
 
+        self.pause_army_production.append(False)
+        self.pause_queen_production.append(False)
+    """
+    Lair Tech Buildings
+    """
     async def lair_tech_buildings(self):
         # Build Hydralisk Den
         if not self.can_afford(UnitID.HYDRALISKDEN):
             return
         if len(self.hydralisk_dens) == 0 and self.lair_finished:
             self.pause_army_production.append(True)
-            position = self.units(UnitID.HATCHERY).ready.first.position.towards(self.game_info.map_center, 7)
+            buildings_around = self.townhalls.ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
+            position = await self.find_placement(building=UnitID.HYDRALISKDEN, near=buildings_around, placement_step=4)
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.HYDRALISKDEN, position))
             self.pause_army_production.append(False)
@@ -95,22 +97,24 @@ class Build:
             return
         if len(self.infestation_pits) == 0 and self.lair_finished:
             self.pause_army_production.append(True)
-            position = self.units(UnitID.HATCHERY).ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
+            buildings_around = self.townhalls.ready.first.position.towards(self.main_base_ramp.depot_in_middle, 7)
+            position = await self.find_placement(building=UnitID.INFESTATIONPIT, near=buildings_around, placement_step=4)
             worker = self.workers.closest_to(position)
             self.actions.append(worker.build(UnitID.INFESTATIONPIT, position))
             self.pause_army_production.append(False)
 
         # Upgrade to Hive
         # Primary Check = hatch count must be at least 4
-        if not self.can_afford(UnitID.HIVE) or len(self.townhalls) < 4:
-            return
-        if len(self.hives) == 0 and self.infestation_pits and self.units(UnitID.LAIR).idle:
-            self.pause_army_production.append(True)
-            self.pause_queen_production.append(True)
-            lair = self.units(UnitID.LAIR).first
-            self.actions.append(lair(AbilID.UPGRADETOHIVE_HIVE))
-            self.pause_army_production.append(False)
-            self.pause_queen_production.append(False)
+        # if not self.can_afford(UnitID.HIVE) or len(self.townhalls) < 4 or not self.lairs.idle:
+        #     return
+        # if len(self.hives) + self.already_pending(UnitID.HIVE) == 0 and self.infestation_pits:
+        #     self.pause_queen_production.append(True)
+        #     lair = self.units(UnitID.LAIR).first
+        #     self.actions.append(lair(AbilID.UPGRADETOHIVE_HIVE))
+        #     self.pause_queen_production.append(False)
 
+    """
+    Hive Tech Buildings
+    """
     async def hive_tech_buildings(self):
         return

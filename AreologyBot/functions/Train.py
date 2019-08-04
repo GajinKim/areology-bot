@@ -7,8 +7,8 @@ class Train:
     Production
     """
     async def train_drone(self):
-        self.worker_cap = min(22 *(len(self.townhalls) + 6 * self.already_pending, 80))
-        if self.minerals < 50 or self.pause_drone_production:
+        self.worker_cap = min(16 * (len(self.hatcheries) + len(self.lairs) + len(self.hives)) + 3 * len(self.extractors), 80)
+        if self.minerals < 50 or self.worker_supply > 1.125 * self.army_supply:
             return
         # Soft Cap is num of hatcheries * 22 + building hatcheries * 6
         # Hard Cap is 80
@@ -38,7 +38,7 @@ class Train:
     Army Production
     """
     async def rp_train_army(self):
-        if self.minerals < 50 or self.pause_army_production:
+        if self.minerals < 50:
             return
         # Prioritization: Roach > Zergling
         if self.larvae and self.roach_warren_finished:
@@ -48,7 +48,7 @@ class Train:
                 self.actions.append(self.larvae.first.train(UnitID.ZERGLING))
 
     async def hatch_train_army(self):
-        if self.minerals < 50 or self.pause_army_production or self.army_supply > self.worker_supply / 1.5:
+        if self.minerals < 50:
             return
         # If we somehow end up with less than 15 drones, priotize workers
         if self.larvae and self.worker_supply < 15:
@@ -62,7 +62,7 @@ class Train:
                 self.actions.append(self.larvae.first.train(UnitID.ZERGLING))
 
     async def lair_train_army(self):
-        if self.minerals < 50 or self.pause_army_production:
+        if self.minerals < 50:
             return
         # If we somehow end up with less than 15 drones, priotize workers
         if self.larvae and self.worker_supply < 15:
