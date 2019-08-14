@@ -48,7 +48,7 @@ class Build:
             return
         # Extra Requirements: at least 28 workers
         if len(self.roach_warrens) + self.already_pending(UnitID.ROACHWARREN) == 0 and self.worker_supply > 28:
-            await self.chat_send(str(self.pause_drone_production))
+            await self.chat_send('check number of drones, we should be at 28')
             self.pause_drone_production = True
             self.pause_army_production = True
             self.pause_queen_production = True
