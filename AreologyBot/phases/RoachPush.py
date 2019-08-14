@@ -23,9 +23,6 @@ class RoachPush:
                     self.actions.append(unit.attack(enemy))
                 # If we don't see any hostile enemies
                 else:
-                    if not self.clear_map:
-                        self.clear_map = itertools.cycle([self.enemy_start_locations[0]] + list(self.expansion_locations.keys()))
-                        self.army_target = next(self.clear_map)
                     if self.units.closer_than(7, self.army_target):
                         self.army_target = next(self.clear_map)
                         self.actions.append(unit.move(self.army_target))

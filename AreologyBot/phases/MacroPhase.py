@@ -9,6 +9,7 @@ Priority: Upgrade > Build > Train > Army / Unit
 """""""""""
 class HatchTech:
     async def research_upgrades(self):
+        # Range / Armor > Melee
         return
 
     async def build_structures(self):
@@ -30,6 +31,7 @@ class HatchTech:
 
 class LairTech:
     async def research_upgrades(self):
+        # Range / Armor > Melee
         return
 
     async def build_structures(self):
@@ -52,6 +54,7 @@ class LairTech:
 
 class HiveTech:
     async def research_upgrades(self):
+        # Range / Armor > Melee
         return
 
     async def build_structures(self):

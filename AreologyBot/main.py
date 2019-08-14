@@ -34,8 +34,8 @@ class AreologyBot(sc2.BotAI):
             UnitID.DRONE,       # 17/22
             UnitID.HATCHERY,    # 16/22
             UnitID.DRONE,       # 17/22
-            UnitID.DRONE,       # 18/22
             "DRONE SCOUT",
+            UnitID.DRONE,       # 18/22
             UnitID.EXTRACTOR,   # 17/22
             UnitID.SPAWNINGPOOL,# 16/22
             UnitID.DRONE,       # 17/22

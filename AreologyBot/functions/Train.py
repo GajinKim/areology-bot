@@ -8,7 +8,7 @@ class Train:
     """
     async def train_drone(self):
         self.worker_cap = min(16 * (len(self.hatcheries) + len(self.lairs) + len(self.hives)) + 3 * len(self.extractors), 80)
-        if self.minerals < 50 or self.worker_supply > 1.25 * self.army_supply or self.pause_drone_production:
+        if self.minerals < 50 or self.worker_supply > 1.5 * self.army_supply or self.pause_drone_production:
             return
         # Soft Cap is num of hatcheries * 22 + building hatcheries * 6
         # Hard Cap is 80
@@ -57,7 +57,7 @@ class Train:
         if self.larvae and self.roach_warren_finished:
             if self.can_afford(UnitID.ROACH):
                 self.actions.append(self.larvae.first.train(UnitID.ROACH))
-        # Hard Cap of 15 zerglings
+        # Hard Cap of 30 zerglings (15 x 2)
         if self.larvae and self.spawning_pool_finished and self.zerglings.amount < 15:
             if self.can_afford(UnitID.ZERGLING):
                 self.actions.append(self.larvae.first.train(UnitID.ZERGLING))
@@ -69,6 +69,7 @@ class Train:
         if self.larvae and self.worker_supply < 15:
             self.actions.append(self.larvae.first.train(UnitID.DRONE))
         # Prioritzation: Hydralisk > Roach
+        # Cut zergling production entirely
         if self.larvae and self.hydralisk_den_finished and self.roach_warren_finished:
             if self.can_afford(UnitID.HYDRALISK):
                 self.actions.append(self.larvae.first.train(UnitID.HYDRALISK))
