@@ -32,7 +32,7 @@ class Army:
                 # send all units
                 for unit in army_idle:
                     # attack closest unit
-                    closest_enemy = self.ground_enemies.closest_to(unit)
+                    closest_enemy = self.known_enemy_ground_units.closest_to(unit)
                     self.actions.append(unit.attack(closest_enemy))
 
     async def send_army_to_defend(self):

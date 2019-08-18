@@ -74,10 +74,10 @@ class Build:
 
         # Upgrade to Lair
         # Tech Requirements
-        if not self.can_afford(UnitID.LAIR) or len(self.townhalls) < 3 or not self.hatcheries.idle or not self.spawning_pool_finished:
+        if not self.can_afford(UnitID.LAIR) or len(self.townhalls) < 2 or not self.hatcheries.idle or not self.spawning_pool_finished:
             return
-        # Extra Requirements: at least 3 townhalls and 44 drones
-        if len(self.lairs) + self.already_pending(UnitID.LAIR) == 0 and len(self.townhalls) >= 3 and self.worker_supply >= 44:
+        # Extra Requirements: at least 44 drones
+        if len(self.lairs) + self.already_pending(UnitID.LAIR) 0 and self.worker_supply >= 44:
             await self.chat_send('Building Lair')
             self.pause_army_production = True
             self.pause_queen_production = True
@@ -95,8 +95,9 @@ class Build:
         # Build Hydralisk Den
         if not self.can_afford(UnitID.HYDRALISKDEN):
             return
+        # Build as soon as lair is finishes
         if len(self.hydralisk_dens) == 0 and self.lair_finished:
-            await self.chat_send('Building Hydralisk Den')
+            await self.chat_send('Building Hydralisk Den : Lair should have just finished')
             self.pause_drone_production = True
             self.pause_army_production = True
             self.pause_queen_production = True

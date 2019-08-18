@@ -12,11 +12,12 @@ class Scouting:
             return
         else:
             for drone in self.drones:
-                damaged_drone = drone.health < 40
-                if damaged_drone:
+                if self.time > 2.1:
                     first_mineral_patch = self.state.mineral_field.closest_to(self.hatcheries.first.position)
                     self.actions.append(drone.gather(first_mineral_patch))
-                    self.drone_scout_retreated.append(True)
+                    self.drone_scout_retreated = True
+                else:
+                    return
 
     async def retreat_overlord_scout(self):
         if self.overlord_scout_retreated:
@@ -27,7 +28,7 @@ class Scouting:
                 if damaged_overlord:
                     # damaged overlord sent back home
                     self.actions.append(overlord.move(self.hatcheries.first.position))
-                    self.overlord_scout_retreated.append(True)
+                    self.overlord_scout_retreated = True
 
     """
     Gathered Information
@@ -58,16 +59,16 @@ class Scouting:
             return
         if self.enemy_race == Race.Terran:
             # scenario 1: late / no expansion
-            if self.minutes > 1.5 and len(self.known_enemy_structures(UnitID.COMMANDCENTER)) < 2:
+            if self.minutes > 2 and len(self.known_enemy_structures(UnitID.COMMANDCENTER)) < 2:
                 self.enemy_cheesing.append(True)
                 await self.chat_send("ENEMY BE PROXYING")
         elif self.enemy_race == Race.Zerg:
             # scenario 1: late / no expansion
-            if self.minutes > 1 and len(self.known_enemy_structures(UnitID.HATCHERY)) < 2:
+            if self.minutes > 2 and len(self.known_enemy_structures(UnitID.HATCHERY)) < 2:
                 self.enemy_cheesing.append(True)
                 await self.chat_send("ENEMY BE CHEESING")
         elif self.enemy_race == Race.Protoss:
             # scenario 1: late / no expansion
-            if self.minutes > 1.5 and len(self.known_enemy_structures(UnitID.NEXUS)) < 2:
+            if self.minutes > 2 and len(self.known_enemy_structures(UnitID.NEXUS)) < 2:
                 self.enemy_cheesing.append(True)
                 await self.chat_send("ENEMY BE CHEESING")

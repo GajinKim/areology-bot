@@ -21,11 +21,6 @@ class RoachPush:
                 if self.known_enemy_ground_units:
                     enemy = self.known_enemy_ground_units.closest_to(unit)
                     self.actions.append(unit.attack(enemy))
-                # If we don't see any hostile enemies
-                else:
-                    if self.units.closer_than(7, self.army_target):
-                        self.army_target = next(self.clear_map)
-                        self.actions.append(unit.move(self.army_target))
 
     async def end_push(self):
         if not self.roach_push_started:
