@@ -5,7 +5,7 @@ from sc2.player import Bot, Computer, Human
 from __init__ import *
 
 # Load bot
-from Main import AreologyBot
+from main import AreologyBot
 my_bot = sc2.player.Bot(Race.Zerg, AreologyBot())
 
 # Run Simulation

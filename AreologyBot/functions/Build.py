@@ -77,7 +77,7 @@ class Build:
         if not self.can_afford(UnitID.LAIR) or len(self.townhalls) < 2 or not self.hatcheries.idle or not self.spawning_pool_finished:
             return
         # Extra Requirements: at least 44 drones
-        if len(self.lairs) + self.already_pending(UnitID.LAIR) 0 and self.worker_supply >= 44:
+        if len(self.lairs) + self.already_pending(UnitID.LAIR) == 0 and self.worker_supply >= 44:
             await self.chat_send('Building Lair')
             self.pause_army_production = True
             self.pause_queen_production = True

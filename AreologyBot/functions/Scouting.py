@@ -12,10 +12,12 @@ class Scouting:
             return
         else:
             for drone in self.drones:
-                if self.time > 2.1:
+                if self.known_enemy_structures:
                     first_mineral_patch = self.state.mineral_field.closest_to(self.hatcheries.first.position)
                     self.actions.append(drone.gather(first_mineral_patch))
                     self.drone_scout_retreated = True
+                    await self.chat_send("returning scout") # in-game alert
+                    return
                 else:
                     return
 
