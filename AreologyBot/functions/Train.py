@@ -7,21 +7,20 @@ class Train:
     Production
     """
     async def train_drone(self):
+        # Hard Cap is 80
         self.worker_cap = min(16 * (len(self.hatcheries) + len(self.lairs) + len(self.hives)) + 3 * len(self.extractors), 80)
-        if self.minerals < 50:
+        if self.minerals < 50 or self.worker_supply >= self.worker_cap:
             return
-        if self.townhalls < 2:
+        if len(self.townhalls) < 2:
             if self.worker_supply > 2 * self.army_supply or self.pause_drone_production:
                 return
-        elif self.townhalls < 3:
+        elif len(self.townhalls) < 3:
             if self.worker_supply > 1.5 * self.army_supply or self.pause_drone_production:
                 return
-        else:
+        elif len(self.townhalls) >= 4:
             if self.worker_supply > 1.15 * self.army_supply or self.pause_drone_production:
                 return
-        # Soft Cap is num of hatcheries * 22 + building hatcheries * 6
-        # Hard Cap is 80
-        if self.larvae and self.worker_supply < self.worker_cap:
+        else:
             self.actions.append(self.larvae.first.train(UnitID.DRONE))
 
     async def train_overlord(self):
@@ -29,7 +28,6 @@ class Train:
             return
         if self.larvae and self.supply_cap != 200 and self.supply_left + self.already_pending(UnitID.OVERLORD) * 8 < 3 + self.supply_used // 7:
             self.actions.append(self.larvae.first.train(UnitID.OVERLORD))
-
     """
     Queen Production
     """

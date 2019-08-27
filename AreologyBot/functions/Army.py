@@ -11,29 +11,13 @@ class Army:
         if self.supply_used < 190:
             return
         if self.supply_used >= 190:
-            # we dont see anything, go to enemy start location (only works on 2 player maps)
-            if not self.known_enemy_ground_units:
-                # if we didnt start to clear the map already
-                if not self.clear_map:
-                    # start with enemy starting location, then cycle through all expansions
-                    self.clear_map = itertools.cycle(
-                        [self.enemy_start_locations[0]] + list(self.expansion_locations.keys())
-                    )
-                    self.army_target = next(self.clear_map)
-                # we can see the expansion but there seems to be nothing, get next
-                if self.units.closer_than(7, self.army_target):
-                    self.army_target = next(self.clear_map)
-                # send all units
-                for unit in self.army_units:
-                    self.actions.append(unit.move(self.army_target))
-            else:
-                # select only idle units, the other units have tasks already
-                army_idle = self.army_units.idle
-                # send all units
-                for unit in army_idle:
-                    # attack closest unit
-                    closest_enemy = self.known_enemy_ground_units.closest_to(unit)
-                    self.actions.append(unit.attack(closest_enemy))
+            # Gather available army units
+            army = self.army_units
+            for unit in army:
+                # If we see enemy units
+                if self.known_enemy_ground_units:
+                    enemy = self.known_enemy_ground_units.closest_to(unit)
+                    self.actions.append(unit.attack(enemy))
 
     async def send_army_to_defend(self):
         if self.supply_used >= 190:

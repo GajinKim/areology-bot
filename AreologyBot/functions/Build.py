@@ -19,7 +19,7 @@ class Build:
         # Primary Check = minutes elapsed is cap
         if not self.can_afford(UnitID.HATCHERY):
             return
-        self.hatch_limit = min(self.worker_supply / 20 + 1, 4)
+        self.hatch_limit = self.worker_supply / 16 + 1
         if not self.already_pending(UnitID.HATCHERY) and len(self.townhalls) < self.hatch_limit:
             self.pause_drone_production = True
             self.pause_army_production = True
