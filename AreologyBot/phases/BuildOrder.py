@@ -39,8 +39,8 @@ class BuildOrder:
 class BuildStep:
     # Works for now, maybe move anti-cheese algorithm to its own class (or sub-class) later on.
     async def versus_cheese(self):
-        # if we manage to build 20 zerglings (10 x 2), we can assume the push has been held
-        if self.zerglings.amount >= 10 and self.spine_crawlers.amount >= 2:
+        # if we manage to build 10 zerglings (5 x 2), we can assume the push has been held
+        if self.zerglings.amount >= 5 and self.spine_crawlers.amount >= 2:
             await self.chat_send('Assuming enemy aggression is over')
             self.enemy_cheesing.append(False)
             self.buildorder_step = 33 # step 33 = "BUILD OVER"

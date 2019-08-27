@@ -133,7 +133,7 @@ class AreologyBot(sc2.BotAI):
 
     async def generic_mechanics(self):
         # macro
-        await self.distribute_workers()
+        # await self.distribute_workers()
         await Unit.fill_extractors(self)
         await Unit.inject(self)
         # micro

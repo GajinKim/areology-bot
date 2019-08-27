@@ -8,8 +8,17 @@ class Train:
     """
     async def train_drone(self):
         self.worker_cap = min(16 * (len(self.hatcheries) + len(self.lairs) + len(self.hives)) + 3 * len(self.extractors), 80)
-        if self.minerals < 50 or self.worker_supply > 1.5 * self.army_supply or self.pause_drone_production:
+        if self.minerals < 50:
             return
+        if self.townhalls < 2:
+            if self.worker_supply > 2 * self.army_supply or self.pause_drone_production:
+                return
+        elif self.townhalls < 3:
+            if self.worker_supply > 1.5 * self.army_supply or self.pause_drone_production:
+                return
+        else:
+            if self.worker_supply > 1.15 * self.army_supply or self.pause_drone_production:
+                return
         # Soft Cap is num of hatcheries * 22 + building hatcheries * 6
         # Hard Cap is 80
         if self.larvae and self.worker_supply < self.worker_cap:
